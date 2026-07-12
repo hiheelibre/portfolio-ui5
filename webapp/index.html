@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="레거시 웹시스템과 SAP S/4HANA 프로젝트를 함께 보여주는 엔터프라이즈 개발자 포트폴리오">
+    <title>Enterprise Developer Portfolio</title>
+    <style>
+        html, body, body > div, #content { height: 100%; }
+    </style>
+    <script
+        id="sap-ui-bootstrap"
+        src="https://ui5.sap.com/1.120.30/resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_horizon"
+        data-sap-ui-resourceroots='{ "portfolio.dashboard": "./" }'
+        data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-async="true"
+        data-sap-ui-libs="sap.m">
+    </script>
+</head>
+<body class="sapUiBody sapUiSizeCompact" id="content">
+    <div data-sap-ui-component data-name="portfolio.dashboard" data-id="container"
+         data-settings='{"id" : "portfolio.dashboard"}' data-handle-validation="true"
+         style="height:100%"></div>
+</body>
+</html>

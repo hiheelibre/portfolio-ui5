@@ -1,0 +1,448 @@
+<!--
+  Dashboard.view.xml — Enterprise Developer Portfolio (목업 1:1 이식)
+  - 데이터: 빌드 타임 생성 정적 JSON만 사용 (model/modules.json, model/posts/**)
+  - 라우팅: #dashboard / #module/{Code} / #post/{Module}/{PostId} / #skills / #career
+  - 페이지: Dashboard / Module 상세 / Post 상세 / Skills / Career (NavContainer)
+  - 모바일: 상단 헤더 + 햄버거 + 사이드바 Drawer (CSS + Controller 토글)
+-->
+<mvc:View
+    controllerName="portfolio.dashboard.controller.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true"
+    height="100%">
+
+    <Shell appWidthLimited="false" class="pfShellWrap">
+        <App id="appRoot">
+            <pages>
+                <Page id="rootPage" showHeader="false" showNavButton="false"
+                      enableScrolling="false" backgroundDesign="Solid" class="pfRootPage">
+                    <content>
+
+                        <!-- 모바일 전용 상단 헤더 (데스크탑에서는 CSS로 숨김) -->
+                        <HBox id="mobileHeader" class="pfMobileHeader" alignItems="Center"
+                              justifyContent="SpaceBetween">
+                            <HBox alignItems="Center" class="pfMobileLogo">
+                                <Text text="{site>/brand/logoLead}&#160;" class="pfLogoText"/>
+                                <Text text="{site>/brand/logoAccent}" class="pfLogoAccent"/>
+                            </HBox>
+                            <Button id="hamburgerBtn" icon="sap-icon://menu2"
+                                    press=".onToggleDrawer" class="pfHamburger"
+                                    tooltip="메뉴 열기"/>
+                        </HBox>
+
+                        <!-- Drawer 오버레이 (모바일에서 사이드바 열림 시 배경) -->
+                        <VBox id="drawerOverlay" class="pfDrawerOverlay"/>
+
+                        <FlexBox renderType="Bare" class="pfShell" height="100%" width="100%">
+
+                            <!-- ═══ 사이드바 (모바일에서는 Drawer) ═══ -->
+                            <VBox id="sidebar" class="pfSidebar">
+                                <VBox class="pfLogoArea">
+                                    <HBox>
+                                        <Text text="{site>/brand/logoLead}&#160;" class="pfLogoText"/>
+                                        <Text text="{site>/brand/logoAccent}" class="pfLogoAccent"/>
+                                    </HBox>
+                                    <Text text="{site>/brand/caption}" class="pfLogoCaption"/>
+                                </VBox>
+
+                                <VBox class="pfNavScroll">
+                                    <Button id="navDashboard" text="Dashboard"
+                                            press=".onNavDashboard" class="pfNavItem pfActive"/>
+
+                                    <Text text="SAP S/4HANA" class="pfNavGroupTitle"
+                                          visible="{= ${vm>/nav/sap}.length > 0 }"/>
+                                    <VBox id="navSapList" items="{vm>/nav/sap}" renderType="Bare">
+                                        <Button text="{vm>label}" press=".onNavModule" class="pfNavSubItem"/>
+                                    </VBox>
+
+                                    <Text text="Legacy Web Systems" class="pfNavGroupTitle"
+                                          visible="{= ${vm>/nav/legacy}.length > 0 }"/>
+                                    <VBox id="navLegacyList" items="{vm>/nav/legacy}" renderType="Bare">
+                                        <Button text="{vm>label}" press=".onNavModule" class="pfNavSubItem"/>
+                                    </VBox>
+
+                                    <Text text="Information" class="pfNavGroupTitle"/>
+                                    <Button id="navSkills" text="Technical Skills"
+                                            press=".onNavSkills" class="pfNavItem"/>
+                                    <Button id="navCareer" text="Career &amp; Contact"
+                                            press=".onNavCareer" class="pfNavItem"/>
+                                </VBox>
+
+                                <Text text="{site>/brand/footer}" class="pfSidebarFooter"/>
+                            </VBox>
+
+                            <!-- ═══ 메인: NavContainer ═══ -->
+                            <NavContainer id="navCon" class="pfMain" height="100%"
+                                          afterNavigate=".onAfterNavigate">
+
+                                <!-- ── 1. DASHBOARD ── -->
+                                <ScrollContainer id="pageDashboard" height="100%" width="100%"
+                                                 vertical="true" horizontal="false">
+                                    <VBox id="dashboardInner" class="pfPageInner">
+
+                                        <!-- Hero -->
+                                        <VBox id="heroBox" class="pfHero pfPreEnter pfDelay0">
+                                            <Text text="{site>/hero/kicker}" class="pfHeroKicker"/>
+                                            <FormattedText htmlText="{path: 'site>/hero/title', formatter: '.fmtBr'}"
+                                                           class="pfHeroTitle"/>
+                                            <Text text="{site>/hero/desc}" class="pfHeroDesc"/>
+                                            <HBox items="{site>/hero/actions}" wrap="Wrap" class="pfHeroActions">
+                                                <Button text="{site>label}" press=".onHeroAction" class="pfHeroBtn">
+                                                    <customData>
+                                                        <core:CustomData key="primary" writeToDom="true"
+                                                                         value="{= ${site>primary} ? 'true' : 'false' }"/>
+                                                    </customData>
+                                                </Button>
+                                            </HBox>
+                                        </VBox>
+
+                                        <!-- Career Bridge -->
+                                        <VBox id="bridgeSection" class="pfSection pfPreEnter pfDelay100">
+                                            <HBox class="pfSectionHead" justifyContent="SpaceBetween"
+                                                  alignItems="End" width="100%" wrap="Wrap">
+                                                <VBox>
+                                                    <Text text="{site>/bridge/eyebrow}" class="pfEyebrow"/>
+                                                    <Title text="{site>/bridge/title}" level="H2" class="pfSectionTitle"/>
+                                                </VBox>
+                                                <Text text="{site>/bridge/note}" class="pfSectionNote"/>
+                                            </HBox>
+                                            <FlexBox renderType="Bare" items="{site>/bridge/steps}" class="pfBridgeGrid">
+                                                <VBox class="pfBridgeCard">
+                                                    <Text text="{site>step}" class="pfBridgeStep"/>
+                                                    <Title text="{site>title}" level="H3" class="pfBridgeTitle" wrapping="true"/>
+                                                    <Text text="{site>desc}" class="pfBridgeDesc"/>
+                                                </VBox>
+                                            </FlexBox>
+                                        </VBox>
+
+                                        <!-- Selected Projects (modules.json posts 기반) -->
+                                        <VBox id="projectSection" class="pfSection pfPreEnter pfDelay200">
+                                            <HBox class="pfSectionHead" justifyContent="SpaceBetween"
+                                                  alignItems="End" width="100%" wrap="Wrap">
+                                                <VBox>
+                                                    <Text text="{site>/projectsSection/eyebrow}" class="pfEyebrow"/>
+                                                    <Title text="{site>/projectsSection/title}" level="H2" class="pfSectionTitle"/>
+                                                </VBox>
+                                                <Text text="{site>/projectsSection/note}" class="pfSectionNote"/>
+                                            </HBox>
+
+                                            <List id="cardList" items="{vm>/cards}" showSeparators="None"
+                                                  backgroundDesign="Transparent" class="pfProjectGrid"
+                                                  itemPress=".onCardPress">
+                                                <CustomListItem type="Active" class="pfProjectCard">
+                                                    <VBox class="pfProjectCardInner">
+                                                        <HBox justifyContent="SpaceBetween" alignItems="Start" width="100%">
+                                                            <HBox wrap="Wrap" class="pfBadgeRow">
+                                                                <Text text="{vm>moduleLabel}" class="pfBadge pfBadgeDomain">
+                                                                    <customData>
+                                                                        <core:CustomData key="domain" writeToDom="true" value="{vm>domain}"/>
+                                                                    </customData>
+                                                                </Text>
+                                                                <HBox items="{vm>tags}" wrap="Wrap" class="pfBadgeRow">
+                                                                    <Text text="{vm>name}" class="pfBadge pfBadgeNeutral"/>
+                                                                </HBox>
+                                                            </HBox>
+                                                            <Text text="{vm>index}" class="pfProjectIndex"/>
+                                                        </HBox>
+                                                        <Title text="{vm>title}" level="H3" wrapping="true" class="pfProjectCardTitle"/>
+                                                        <Text text="{vm>summary}" wrapping="true" class="pfProjectCardDesc"/>
+                                                        <HBox justifyContent="SpaceBetween" alignItems="Center"
+                                                              width="100%" class="pfProjectCardBottom">
+                                                            <Text text="{vm>metaLabel}" class="pfProjectMeta"/>
+                                                            <Text text="&#8594;" class="pfArrow"/>
+                                                        </HBox>
+                                                    </VBox>
+                                                </CustomListItem>
+                                            </List>
+                                            <VBox visible="{= ${vm>/cards}.length === 0 }" class="pfEmptyState">
+                                                <Text text="아직 Published 상태의 게시글이 없습니다." class="pfEmptyText"/>
+                                                <Text text="Notion Posts DB에서 게시글을 Published로 변경하고 빌드하면 이 영역에 자동으로 나타납니다."
+                                                      class="pfEmptySub"/>
+                                            </VBox>
+                                        </VBox>
+
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- ── 2. MODULE 상세 (modules.json 바인딩) ── -->
+                                <ScrollContainer id="pageModule" height="100%" width="100%"
+                                                 vertical="true" horizontal="false">
+                                    <VBox id="moduleInner" class="pfPageInner">
+
+                                        <HBox class="pfProjHeader" justifyContent="SpaceBetween"
+                                              alignItems="Start" width="100%" wrap="Wrap">
+                                            <VBox class="pfProjHeaderCopy">
+                                                <Text text="{vm>/module/eyebrow}" class="pfProjCategory"/>
+                                                <Title text="{vm>/module/title}" level="H1" wrapping="true" class="pfProjName"/>
+                                                <Title text="{vm>/module/subtitle}" level="H2" wrapping="true" class="pfProjKor"/>
+                                                <Text text="{vm>/module/description}" wrapping="true" class="pfProjSummary"/>
+                                            </VBox>
+                                            <Button text="&#8592; Dashboard" press=".onBackToDashboard" class="pfBackBtn"/>
+                                        </HBox>
+
+                                        <FlexBox renderType="Bare" class="pfBentoGrid" width="100%">
+
+                                            <!-- Visual / Demo -->
+                                            <VBox class="pfBentoCard pfBentoVisual">
+                                                <Text text="{vm>/module/videoLabel}" class="pfCardLabel"/>
+                                                <VBox class="pfVisualPlaceholder" alignItems="Center" justifyContent="Center">
+                                                    <VBox alignItems="Center">
+                                                        <Text text="{vm>/module/code}" class="pfVisualMark">
+                                                            <customData>
+                                                                <core:CustomData key="domain" writeToDom="true" value="{vm>/module/domain}"/>
+                                                            </customData>
+                                                        </Text>
+                                                        <Text text="{vm>/module/videoLabel}" class="pfVisualTitle"/>
+                                                        <Text text="시연 영상 또는 대표 화면이 배치되는 영역입니다." class="pfVisualSub"/>
+                                                        <Button text="영상 보기" press=".onOpenModuleVideo"
+                                                                visible="{= !!${vm>/module/videoUrl} }" class="pfBtnPlay"/>
+                                                    </VBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- Info -->
+                                            <VBox class="pfBentoCard pfBentoInfo">
+                                                <VBox class="pfInfoBlock">
+                                                    <Text text="OWNER" class="pfInfoLabel"/>
+                                                    <Text text="{vm>/module/owner}" class="pfInfoValue"/>
+                                                </VBox>
+                                                <VBox class="pfInfoBlock">
+                                                    <Text text="PROCESS" class="pfInfoLabel"/>
+                                                    <Text text="{vm>/module/process}" wrapping="true" class="pfInfoValue"/>
+                                                </VBox>
+                                                <VBox class="pfInfoBlock">
+                                                    <Text text="TABLE / DATA" class="pfInfoLabel"/>
+                                                    <HBox items="{vm>/module/tables}" wrap="Wrap" class="pfTagRow">
+                                                        <Text text="{vm>text}" class="pfTechTag"/>
+                                                    </HBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- Features / Tech Points -->
+                                            <VBox class="pfBentoCard pfBentoHalf">
+                                                <Text text="KEY FEATURES" class="pfCardLabel"/>
+                                                <VBox items="{vm>/module/features}" renderType="Bare" class="pfFeatureList">
+                                                    <Text text="{vm>text}" wrapping="true" class="pfFeatureItem"/>
+                                                </VBox>
+                                            </VBox>
+                                            <VBox class="pfBentoCard pfBentoHalf">
+                                                <Text text="IMPLEMENTATION POINTS" class="pfCardLabel"/>
+                                                <VBox items="{vm>/module/techPoints}" renderType="Bare" class="pfFeatureList">
+                                                    <Text text="{vm>text}" wrapping="true" class="pfFeatureItem"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- Process Flow -->
+                                            <VBox class="pfBentoCard pfBentoFull"
+                                                  visible="{= ${vm>/module/processSteps}.length > 0 }">
+                                                <Text text="END-TO-END PROCESS" class="pfCardLabel"/>
+                                                <FlexBox renderType="Bare" items="{vm>/module/processSteps}" class="pfProcessFlow">
+                                                    <VBox class="pfProcessStep" alignItems="Center" justifyContent="Center">
+                                                        <Text text="{vm>text}" wrapping="true" class="pfProcessStepText"/>
+                                                    </VBox>
+                                                </FlexBox>
+                                            </VBox>
+
+                                            <!-- 게시글 목록 -->
+                                            <VBox class="pfBentoCard pfBentoFull"
+                                                  visible="{= ${vm>/module/posts}.length > 0 }">
+                                                <Text text="FUNCTION POSTS" class="pfCardLabel"/>
+                                                <List id="modulePostList" items="{vm>/module/posts}" showSeparators="None"
+                                                      backgroundDesign="Transparent" class="pfProjectGrid pfPostGrid"
+                                                      itemPress=".onModulePostPress">
+                                                    <CustomListItem type="Active" class="pfProjectCard">
+                                                        <VBox class="pfProjectCardInner">
+                                                            <HBox wrap="Wrap" class="pfBadgeRow" items="{vm>tags}">
+                                                                <Text text="{vm>name}" class="pfBadge pfBadgeNeutral"/>
+                                                            </HBox>
+                                                            <Title text="{vm>title}" level="H3" wrapping="true" class="pfProjectCardTitle"/>
+                                                            <Text text="{vm>summary}" wrapping="true" class="pfProjectCardDesc"/>
+                                                            <HBox justifyContent="SpaceBetween" alignItems="Center"
+                                                                  width="100%" class="pfProjectCardBottom">
+                                                                <Text text="{vm>owner}" class="pfProjectMeta"/>
+                                                                <Text text="&#8594;" class="pfArrow"/>
+                                                            </HBox>
+                                                        </VBox>
+                                                    </CustomListItem>
+                                                </List>
+                                            </VBox>
+
+                                        </FlexBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- ── 3. POST 상세 (posts/{Module}/{PostId}.json 바인딩) ── -->
+                                <ScrollContainer id="pagePost" height="100%" width="100%"
+                                                 vertical="true" horizontal="false">
+                                    <VBox id="postInner" class="pfPageInner">
+
+                                        <!-- 로딩 실패 시 오류 상태 (가짜 데이터 금지) -->
+                                        <VBox visible="{= !!${vm>/postError} }" class="pfErrorState">
+                                            <Title text="게시글을 불러오지 못했습니다" level="H2" class="pfErrorTitle"/>
+                                            <Text text="{vm>/postError}" class="pfErrorDesc"/>
+                                            <Button text="&#8592; Dashboard로 돌아가기" press=".onBackToDashboard" class="pfBackBtn"/>
+                                        </VBox>
+
+                                        <VBox visible="{= !${vm>/postError} }">
+                                            <HBox class="pfProjHeader" justifyContent="SpaceBetween"
+                                                  alignItems="Start" width="100%" wrap="Wrap">
+                                                <VBox class="pfProjHeaderCopy">
+                                                    <Text text="{vm>/post/category}" class="pfProjCategory"/>
+                                                    <Title text="{vm>/post/title}" level="H1" wrapping="true" class="pfProjName"/>
+                                                    <Title text="{vm>/post/subtitle}" level="H2" wrapping="true" class="pfProjKor"/>
+                                                    <Text text="{vm>/post/summary}" wrapping="true" class="pfProjSummary"/>
+                                                    <HBox items="{vm>/post/tags}" wrap="Wrap" class="pfBadgeRow pfHeaderBadges">
+                                                        <Text text="{vm>name}" class="pfBadge pfBadgeNeutral"/>
+                                                    </HBox>
+                                                </VBox>
+                                                <Button text="&#8592; Back" press=".onBack" class="pfBackBtn"/>
+                                            </HBox>
+
+                                            <FlexBox renderType="Bare" class="pfBentoGrid" width="100%">
+
+                                                <!-- 갤러리 (screenshots + bodyImages) / 빈 상태 -->
+                                                <VBox class="pfBentoCard pfBentoVisual">
+                                                    <Text text="SCREEN / DEMO" class="pfCardLabel"/>
+                                                    <Carousel visible="{= ${vm>/post/gallery}.length > 0 }"
+                                                              pages="{vm>/post/gallery}" class="pfGallery">
+                                                        <VBox alignItems="Center" class="pfGallerySlide">
+                                                            <Image src="{path: 'vm>url', formatter: '.fmtMedia'}"
+                                                                   densityAware="false" class="pfGalleryImage"/>
+                                                            <Text text="{vm>title}" class="pfGalleryCaption"/>
+                                                        </VBox>
+                                                    </Carousel>
+                                                    <VBox visible="{= ${vm>/post/gallery}.length === 0 }"
+                                                          class="pfVisualPlaceholder" alignItems="Center" justifyContent="Center">
+                                                        <VBox alignItems="Center">
+                                                            <Text text="{vm>/post/moduleId}" class="pfVisualMark">
+                                                                <customData>
+                                                                    <core:CustomData key="domain" writeToDom="true" value="{vm>/post/domain}"/>
+                                                                </customData>
+                                                            </Text>
+                                                            <Text text="등록된 화면 캡처가 없습니다" class="pfVisualTitle"/>
+                                                            <Text text="Notion 게시글의 ScreenUrls 또는 본문 이미지가 이 영역에 표시됩니다."
+                                                                  class="pfVisualSub"/>
+                                                        </VBox>
+                                                    </VBox>
+                                                    <Button text="시연 영상 보기" press=".onOpenPostVideo"
+                                                            visible="{= !!${vm>/post/videoUrl} }" class="pfBtnPlay pfVideoBtn"/>
+                                                </VBox>
+
+                                                <!-- Info -->
+                                                <VBox class="pfBentoCard pfBentoInfo">
+                                                    <VBox class="pfInfoBlock" visible="{= !!${vm>/post/owner} }">
+                                                        <Text text="OWNER" class="pfInfoLabel"/>
+                                                        <Text text="{vm>/post/owner}" class="pfInfoValue"/>
+                                                    </VBox>
+                                                    <VBox class="pfInfoBlock" visible="{= ${vm>/post/process}.length > 0 }">
+                                                        <Text text="PROCESS" class="pfInfoLabel"/>
+                                                        <Text text="{vm>/post/processText}" wrapping="true" class="pfInfoValue"/>
+                                                    </VBox>
+                                                    <VBox class="pfInfoBlock" visible="{= ${vm>/post/tables}.length > 0 }">
+                                                        <Text text="TABLE / DATA" class="pfInfoLabel"/>
+                                                        <HBox items="{vm>/post/tables}" wrap="Wrap" class="pfTagRow">
+                                                            <Text text="{vm>text}" class="pfTechTag"/>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+
+                                                <!-- 구현 포인트 (속성 기반) -->
+                                                <VBox class="pfBentoCard pfBentoHalf"
+                                                      visible="{= ${vm>/post/implementation}.length > 0 }">
+                                                    <Text text="IMPLEMENTATION POINTS" class="pfCardLabel"/>
+                                                    <VBox items="{vm>/post/implementation}" renderType="Bare" class="pfFeatureList">
+                                                        <Text text="{vm>text}" wrapping="true" class="pfFeatureItem"/>
+                                                    </VBox>
+                                                </VBox>
+
+                                                <!-- 트러블슈팅 -->
+                                                <VBox class="pfBentoCard pfBentoHalf"
+                                                      visible="{= ${vm>/post/troubleShooting}.length > 0 }">
+                                                    <Text text="TROUBLESHOOTING" class="pfCardLabel"/>
+                                                    <VBox items="{vm>/post/troubleShooting}" renderType="Bare" class="pfFeatureList">
+                                                        <VBox class="pfTroubleItem">
+                                                            <Text text="{vm>problem}" wrapping="true" class="pfFeatureItem"/>
+                                                            <Text text="{vm>solution}" wrapping="true"
+                                                                  visible="{= !!${vm>solution} }" class="pfTroubleSolution"/>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+
+                                                <!-- 본문 섹션 (Notion 블록 → sections 반복 바인딩) -->
+                                                <VBox items="{vm>/post/sections}" renderType="Bare" class="pfSectionsWrap">
+                                                    <VBox class="pfBentoCard pfBentoFull pfBodySection">
+                                                        <Text text="{vm>heading}" class="pfCardLabel"/>
+                                                        <FormattedText htmlText="{vm>bodyHtml}" class="pfBodyCopy"/>
+                                                    </VBox>
+                                                </VBox>
+
+                                            </FlexBox>
+                                        </VBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- ── 4. SKILLS ── -->
+                                <ScrollContainer id="pageSkills" height="100%" width="100%"
+                                                 vertical="true" horizontal="false">
+                                    <VBox id="skillsInner" class="pfPageInner">
+                                        <Text text="{site>/skills/eyebrow}" class="pfEyebrow"/>
+                                        <Title text="{site>/skills/title}" level="H1" wrapping="true" class="pfPageTitle"/>
+                                        <Text text="{site>/skills/desc}" wrapping="true" class="pfPageDesc"/>
+
+                                        <FlexBox renderType="Bare" items="{site>/skills/cards}"
+                                                 class="pfSkillGrid pfSection">
+                                            <VBox class="pfSkillCard">
+                                                <Text text="{site>badge}" class="pfBadge pfBadgeType">
+                                                    <customData>
+                                                        <core:CustomData key="type" writeToDom="true" value="{site>type}"/>
+                                                    </customData>
+                                                </Text>
+                                                <Title text="{site>title}" level="H3" class="pfSkillTitle"/>
+                                                <Text text="{site>desc}" wrapping="true" class="pfSkillDesc"/>
+                                                <HBox items="{site>tags}" wrap="Wrap" class="pfSkillTags">
+                                                    <Text text="{site>text}" class="pfPill"/>
+                                                </HBox>
+                                            </VBox>
+                                        </FlexBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- ── 5. CAREER & CONTACT ── -->
+                                <ScrollContainer id="pageCareer" height="100%" width="100%"
+                                                 vertical="true" horizontal="false">
+                                    <VBox id="careerInner" class="pfPageInner">
+                                        <Text text="{site>/career/eyebrow}" class="pfEyebrow"/>
+                                        <FormattedText htmlText="{path: 'site>/career/title', formatter: '.fmtBr'}"
+                                                       class="pfPageTitle"/>
+                                        <Text text="{site>/career/desc}" wrapping="true" class="pfPageDesc"/>
+
+                                        <VBox items="{site>/career/timeline}" renderType="Bare"
+                                              class="pfTimeline pfSection">
+                                            <VBox class="pfTimelineItem">
+                                                <Text text="{site>year}" class="pfTimelineYear"/>
+                                                <Title text="{site>title}" level="H3" class="pfTimelineTitle" wrapping="true"/>
+                                                <Text text="{site>desc}" wrapping="true" class="pfTimelineDesc"/>
+                                            </VBox>
+                                        </VBox>
+
+                                        <VBox class="pfContactCard">
+                                            <Title text="{site>/career/contact/title}" level="H3" class="pfContactTitle"/>
+                                            <Text text="{site>/career/contact/body}" wrapping="true" class="pfContactBody"/>
+                                            <HBox items="{site>/career/contact/links}" wrap="Wrap" class="pfContactLinks">
+                                                <Button text="{site>label}" press=".onOpenLink" class="pfBtnSecondary"/>
+                                            </HBox>
+                                        </VBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                            </NavContainer>
+                        </FlexBox>
+
+                    </content>
+                </Page>
+            </pages>
+        </App>
+    </Shell>
+</mvc:View>

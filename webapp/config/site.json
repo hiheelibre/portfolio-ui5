@@ -1,0 +1,124 @@
+{
+  "brand": {
+    "logoLead": "Enterprise",
+    "logoAccent": "Portfolio",
+    "caption": "LEGACY WEB → SAP S/4HANA",
+    "footer": "하나의 기술만 나열하기보다\n업무 이해와 시스템 전환 역량을 보여주는 구성입니다."
+  },
+  "hero": {
+    "kicker": "ENTERPRISE APPLICATION DEVELOPER",
+    "title": "공공 웹시스템에서 SAP ERP까지,\n복잡한 업무를 데이터 흐름으로 설계합니다.",
+    "desc": "환경부 수질오염총량관리시스템과 국립생태원 MOTIVE 시스템 등 공공 레거시 웹 프로젝트 경험을 바탕으로, 현재는 SAP S/4HANA의 구매·재고·생산·원가·회계 프로세스를 ABAP, CDS, RAP, UI5로 구현하고 있습니다. 화면을 만드는 데서 끝나지 않고 업무 규칙, 데이터 정합성, 사용자 처리 흐름을 함께 설계합니다.",
+    "actions": [
+      { "label": "SAP 프로젝트 보기", "hash": "module/OV", "primary": true },
+      { "label": "기술 역량 보기", "hash": "skills", "primary": false },
+      { "label": "Career & Contact", "hash": "career", "primary": false }
+    ]
+  },
+  "bridge": {
+    "eyebrow": "Career Bridge",
+    "title": "경험이 이어지는 방식",
+    "note": "레거시 경험을 SAP와 분리하지 않고 성장 흐름으로 설명",
+    "steps": [
+      {
+        "step": "01 · LEGACY WEB",
+        "title": "공공 업무시스템 개발",
+        "desc": "업무 담당자의 요구를 화면과 데이터 처리 로직으로 전환하고, 기존 시스템의 제약 안에서 안정적으로 기능을 개선한 경험."
+      },
+      {
+        "step": "02 · DOMAIN & DATA",
+        "title": "업무 규칙과 정합성 이해",
+        "desc": "다단계 조회·등록·검증 흐름, 기준정보, 이력 데이터, 예외상황을 고려하며 엔터프라이즈 시스템의 기본기를 축적."
+      },
+      {
+        "step": "03 · SAP S/4HANA",
+        "title": "End-to-End ERP 구현",
+        "desc": "구매·재고·생산·판매·원가·회계가 연결되는 프로세스를 ABAP과 Fiori 기술로 구현하며 시스템 관점을 확장."
+      }
+    ]
+  },
+  "projectsSection": {
+    "eyebrow": "Selected Projects",
+    "title": "대표 프로젝트",
+    "note": "SAP와 레거시를 동일한 상세 구조로 설명"
+  },
+  "skills": {
+    "eyebrow": "Technical Skills",
+    "title": "기술을 프로젝트 맥락으로 보여줍니다.",
+    "desc": "단순한 숙련도 막대 대신 어떤 업무 문제에 기술을 사용했는지 연결합니다. 레거시 웹과 SAP 기술을 별개로 나누되, 공통 기반인 데이터 처리·디버깅·업무 분석 역량을 가운데에 배치합니다.",
+    "cards": [
+      {
+        "type": "sap",
+        "badge": "SAP BACKEND",
+        "title": "ABAP & S/4HANA",
+        "desc": "Report, Module Pool, ALV, Open SQL, DDIC, Function Module, BAPI, CDS View를 활용한 업무 프로그램 개발.",
+        "tags": [ { "text": "ABAP" }, { "text": "ALV" }, { "text": "CDS" }, { "text": "BAPI" }, { "text": "Debugging" } ]
+      },
+      {
+        "type": "sap",
+        "badge": "SAP UX",
+        "title": "RAP & SAPUI5",
+        "desc": "RAP 기반 서비스와 SAPUI5 화면을 연결하고, KPI·품질·재고 데이터를 웹과 모바일 환경에 맞게 표현.",
+        "tags": [ { "text": "RAP" }, { "text": "OData" }, { "text": "SAPUI5" }, { "text": "XML View" } ]
+      },
+      {
+        "type": "legacy",
+        "badge": "LEGACY WEB",
+        "title": "Enterprise Web",
+        "desc": "공공 업무시스템의 기존 구조를 분석하고, 조회·등록·수정·검증 기능과 운영 이슈를 안정적으로 개선.",
+        "tags": [ { "text": "Web UI" }, { "text": "SQL" }, { "text": "Legacy Framework" }, { "text": "Maintenance" } ]
+      },
+      {
+        "type": "neutral",
+        "badge": "DATA",
+        "title": "Data Integrity",
+        "desc": "마스터, 문서, 상태, 수량, 금액의 연결 관계를 확인하고 저장 전후의 정합성과 예외조건을 검증.",
+        "tags": [ { "text": "Validation" }, { "text": "Transaction" }, { "text": "History" }, { "text": "Reconciliation" } ]
+      },
+      {
+        "type": "neutral",
+        "badge": "PROBLEM SOLVING",
+        "title": "Analysis & Troubleshooting",
+        "desc": "덤프, 성능, 데이터 불일치, 화면 상태 오류를 재현하고 원인을 좁혀 소스·데이터·업무 규칙 관점에서 해결.",
+        "tags": [ { "text": "Root Cause" }, { "text": "Testing" }, { "text": "Logging" }, { "text": "Performance" } ]
+      },
+      {
+        "type": "green",
+        "badge": "COLLABORATION",
+        "title": "Documentation & Delivery",
+        "desc": "프로세스 정의서, 테이블 명세, 통합테스트 시나리오, 발표 자료와 시연 데이터를 함께 준비해 개발 결과를 전달.",
+        "tags": [ { "text": "GitHub" }, { "text": "Obsidian" }, { "text": "Test Scenario" }, { "text": "Presentation" } ]
+      }
+    ]
+  },
+  "career": {
+    "eyebrow": "Career & Contact",
+    "title": "기술 전환이 아니라\n엔터프라이즈 개발 경험의 확장입니다.",
+    "desc": "경력 섹션에서는 회사명과 기간만 나열하기보다, 각 단계에서 어떤 시스템 관점을 얻었고 SAP 개발로 어떻게 연결됐는지 설명합니다.",
+    "timeline": [
+      {
+        "year": "LEGACY WEB EXPERIENCE",
+        "title": "공공기관 업무시스템 프로젝트",
+        "desc": "환경부 수질오염총량관리시스템과 국립생태원 MOTIVE 시스템을 통해 업무 요구 분석, 데이터 조회·검증, 기존 시스템 개선과 운영 관점을 경험."
+      },
+      {
+        "year": "SAP TRANSITION",
+        "title": "SAP S/4HANA 기반 ERP 개발 역량 확장",
+        "desc": "ABAP, MM, CO, CDS, RAP, SAPUI5를 학습하고 실제 제조업 시나리오를 기준으로 구매·재고·생산·원가·회계 프로그램을 구현."
+      },
+      {
+        "year": "CURRENT DIRECTION",
+        "title": "업무와 데이터를 함께 이해하는 SAP 개발자",
+        "desc": "기존 웹 개발 경험과 SAP 프로세스 지식을 결합해 유지보수 가능한 코드, 정확한 데이터 처리, 사용자가 이해하기 쉬운 화면을 만드는 것을 목표로 함."
+      }
+    ],
+    "contact": {
+      "title": "Contact",
+      "body": "이메일, GitHub, 이력서 PDF, 기술 블로그 또는 포트폴리오 소스 저장소 링크를 배치하세요.",
+      "links": [
+        { "label": "Email", "url": "mailto:hihee9095@gmail.com" },
+        { "label": "GitHub", "url": "https://github.com/" }
+      ]
+    }
+  }
+}

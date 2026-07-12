@@ -1,0 +1,51 @@
+{
+    "_version": "1.58.0",
+    "sap.app": {
+        "id": "portfolio.dashboard",
+        "type": "application",
+        "title": "Enterprise Developer Portfolio",
+        "description": "Notion 빌드 타임 동기화 기반 Enterprise Developer Portfolio",
+        "applicationVersion": {
+            "version": "1.0.0"
+        },
+        "sourceTemplate": {
+            "id": "@sap/ux-app-migrator:freestyle",
+            "version": "1.28.0",
+            "toolsId": "04de38b5-b465-4832-9cdb-38e2b3fdcdb6"
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "rootView": {
+            "viewName": "portfolio.dashboard.view.Dashboard",
+            "type": "XML",
+            "id": "dashboardView",
+            "async": true
+        },
+        "dependencies": {
+            "minUI5Version": "1.120.0",
+            "libs": {
+                "sap.ui.core": {},
+                "sap.m": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "resources": {
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
+        }
+    }
+}

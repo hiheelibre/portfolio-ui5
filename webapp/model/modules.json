@@ -1,0 +1,417 @@
+{
+  "modules": {
+    "MM": {
+      "code": "MM",
+      "title": "Materials Management",
+      "domain": "SAP",
+      "displayName": "",
+      "order": 30,
+      "subtitle": "구매 및 자재관리",
+      "eyebrow": "PROCUREMENT MODULE",
+      "owner": "MM 담당자",
+      "process": "PR → PO → GR → IV",
+      "description": "구매요청부터 송장검증까지",
+      "videoLabel": "MM 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "구매요청 관리"
+        },
+        {
+          "text": "구매오더 관리"
+        },
+        {
+          "text": "입고 처리"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "상태값 기반 제어"
+        },
+        {
+          "text": "구매정보레코드 참조"
+        }
+      ],
+      "tables": [
+        {
+          "text": "ZTC1MM0025"
+        },
+        {
+          "text": "ZTC1MM0026"
+        }
+      ],
+      "posts": [
+        {
+          "id": "pr-management",
+          "title": "구매요청 관리!!!",
+          "summary": "구매요청 흐름을 구현한 기능입니다.",
+          "owner": "김MM",
+          "thumbnail": "",
+          "tags": [
+            "PR",
+            "ALV",
+            "상태관리"
+          ],
+          "order": 10
+        }
+      ]
+    },
+    "OV": {
+      "code": "OV",
+      "title": "Overview Dashboard",
+      "subtitle": "ERP 통합 포털 개요",
+      "eyebrow": "ERP CONTROL TOWER",
+      "owner": "TEAM TAESAN",
+      "process": "Company Story → ERP Portal → Module Portfolio",
+      "description": "태산자전거 ERP 프로젝트의 전체 구조, 업무 흐름, 모듈 간 연계, 팀별 구현 범위를 소개하는 통합 포트폴리오 페이지입니다.",
+      "videoLabel": "프로젝트 전체 소개 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "ERP 전체 프로세스 소개"
+        },
+        {
+          "text": "모듈별 담당 영역 안내"
+        },
+        {
+          "text": "시연 영상 허브 역할"
+        },
+        {
+          "text": "외부 공개용 포트폴리오 진입점"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "SAP 서버 종료 이후에도 접근 가능한 정적 포트폴리오 구조"
+        },
+        {
+          "text": "UI5 라우팅 기반 모듈 상세 페이지 구성"
+        },
+        {
+          "text": "팀원별 영상/설명 컨텐츠 확장 가능"
+        }
+      ],
+      "tables": [
+        {
+          "text": "Project Summary"
+        },
+        {
+          "text": "Module Navigation"
+        },
+        {
+          "text": "Portfolio Contents"
+        }
+      ],
+      "posts": [
+        {
+          "id": "project-overview",
+          "title": "프로젝트 개요",
+          "summary": "태산자전거 ERP 프로젝트의 전체 목적, 구조, 모듈 흐름, 외부 공개 방식을 소개합니다.",
+          "owner": "TEAM TAESAN",
+          "thumbnail": "",
+          "tags": [
+            "Overview",
+            "Portfolio",
+            "SAPUI5",
+            "Netlify"
+          ],
+          "order": 10
+        }
+      ]
+    },
+    "FI": {
+      "code": "FI",
+      "title": "Financial Accounting",
+      "subtitle": "재무회계",
+      "eyebrow": "FINANCE MODULE",
+      "owner": "FI 담당자",
+      "process": "전표 생성 → 반제 → 재무제표 → 리포트",
+      "description": "재무회계 모듈은 매입, 매출, 전표, 반제, 재무제표 흐름을 중심으로 기업의 회계 데이터를 관리하는 영역입니다.",
+      "videoLabel": "FI 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "전표 조회 및 생성"
+        },
+        {
+          "text": "고객/공급업체 반제"
+        },
+        {
+          "text": "G/L 계정 관리"
+        },
+        {
+          "text": "재무제표 조회"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "회계 전표 상태값 관리"
+        },
+        {
+          "text": "차변/대변 금액 검증"
+        },
+        {
+          "text": "반제 대상 항목 선택 및 처리 흐름 구현"
+        }
+      ],
+      "tables": [
+        {
+          "text": "ACDOCA"
+        },
+        {
+          "text": "BKPF"
+        },
+        {
+          "text": "BSEG"
+        }
+      ]
+    },
+    "CO": {
+      "code": "CO",
+      "title": "Controlling",
+      "subtitle": "관리회계",
+      "eyebrow": "CONTROLLING MODULE",
+      "owner": "CO 담당자",
+      "process": "원가 수집 → 배부 → 분석 → 의사결정",
+      "description": "관리회계 모듈은 원가센터, 내부오더, 수익성 분석 등 경영 의사결정을 위한 내부 관리 정보를 제공합니다.",
+      "videoLabel": "CO 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "원가센터 관리"
+        },
+        {
+          "text": "비용 배부"
+        },
+        {
+          "text": "예산 대비 실적 분석"
+        },
+        {
+          "text": "관리회계 리포트"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "원가 객체별 금액 집계"
+        },
+        {
+          "text": "기간별 비용 분석 로직"
+        },
+        {
+          "text": "FI 데이터와 CO 관점의 연결"
+        }
+      ],
+      "tables": [
+        {
+          "text": "CSKS"
+        },
+        {
+          "text": "COSP"
+        },
+        {
+          "text": "ACDOCA"
+        }
+      ]
+    },
+    "SD": {
+      "code": "SD",
+      "title": "Sales and Distribution",
+      "subtitle": "영업 및 출하관리",
+      "eyebrow": "SALES MODULE",
+      "owner": "SD 담당자",
+      "process": "Sales Order → Delivery → Billing → Tax Invoice",
+      "description": "영업오더, 납품, 출고, 청구, 세금계산서 흐름을 중심으로 고객 주문부터 매출 인식까지의 SD 프로세스를 보여주는 모듈입니다.",
+      "videoLabel": "SD 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "판매오더 관리"
+        },
+        {
+          "text": "납품 및 출고 처리"
+        },
+        {
+          "text": "청구 문서 생성"
+        },
+        {
+          "text": "세금계산서 흐름 관리"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "문서 흐름 기반 상태 추적"
+        },
+        {
+          "text": "출고와 재고 차감 연결"
+        },
+        {
+          "text": "청구 및 FI 전표 연계 구조"
+        }
+      ],
+      "tables": [
+        {
+          "text": "VBAK"
+        },
+        {
+          "text": "VBAP"
+        },
+        {
+          "text": "LIKP"
+        },
+        {
+          "text": "LIPS"
+        },
+        {
+          "text": "VBRK"
+        }
+      ]
+    },
+    "PP": {
+      "code": "PP",
+      "title": "Production Planning",
+      "subtitle": "생산계획",
+      "eyebrow": "PRODUCTION MODULE",
+      "owner": "PP 담당자",
+      "process": "BOM → MRP → Production Order → Goods Receipt",
+      "description": "태산자전거의 제품 구조를 기반으로 BOM, 생산계획, MRP, 생산오더, 완제품 입고 흐름을 구현한 생산관리 모듈입니다.",
+      "videoLabel": "PP 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "BOM 구조 관리"
+        },
+        {
+          "text": "월별 생산계획"
+        },
+        {
+          "text": "MRP 소요량 계산"
+        },
+        {
+          "text": "생산 완료 및 완제품 입고"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "완제품/반제품/원자재 구조 설계"
+        },
+        {
+          "text": "소요량 전개 및 구매요청 연결"
+        },
+        {
+          "text": "생산 입고와 MM/FI 연계 구조"
+        }
+      ],
+      "tables": [
+        {
+          "text": "MAST"
+        },
+        {
+          "text": "STPO"
+        },
+        {
+          "text": "AFKO"
+        },
+        {
+          "text": "AFPO"
+        },
+        {
+          "text": "MATDOC"
+        }
+      ]
+    },
+    "HR": {
+      "code": "HR",
+      "title": "Human Resources",
+      "subtitle": "인사관리",
+      "eyebrow": "HR MODULE",
+      "owner": "HR 담당자",
+      "process": "Employee → Organization → Attendance → Payroll",
+      "description": "사원 정보, 조직, 근태, 급여 흐름을 중심으로 기업의 인적 자원을 관리하는 HR 모듈입니다.",
+      "videoLabel": "HR 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "사원 정보 관리"
+        },
+        {
+          "text": "조직 및 부서 관리"
+        },
+        {
+          "text": "근태 현황 조회"
+        },
+        {
+          "text": "급여 기초 데이터 관리"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "사원별 기본 정보 구조화"
+        },
+        {
+          "text": "부서/직급 기준 조회"
+        },
+        {
+          "text": "인사 데이터 기반 리포트 구성"
+        }
+      ],
+      "tables": [
+        {
+          "text": "PA0000"
+        },
+        {
+          "text": "PA0001"
+        },
+        {
+          "text": "PA0002"
+        }
+      ]
+    },
+    "RP": {
+      "code": "RP",
+      "title": "Integrated Report",
+      "subtitle": "통합 리포트",
+      "eyebrow": "ANALYTICS MODULE",
+      "owner": "Report 담당자",
+      "process": "ERP Data → KPI → Dashboard → Insight",
+      "description": "FI, CO, MM, SD, PP 데이터를 통합하여 주요 KPI, 재고 현황, 구매/매출 흐름, 생산 실적을 시각화하는 리포트 모듈입니다.",
+      "videoLabel": "통합 리포트 시연 영상",
+      "videoUrl": "",
+      "features": [
+        {
+          "text": "ERP 통합 KPI 조회"
+        },
+        {
+          "text": "재고 및 구매 현황 분석"
+        },
+        {
+          "text": "매출/출고 흐름 분석"
+        },
+        {
+          "text": "모듈 간 데이터 연계 리포트"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "모듈별 데이터 집계"
+        },
+        {
+          "text": "대시보드 카드 및 차트 구성"
+        },
+        {
+          "text": "경영 관점의 통합 현황 제공"
+        }
+      ],
+      "tables": [
+        {
+          "text": "MATDOC"
+        },
+        {
+          "text": "ACDOCA"
+        },
+        {
+          "text": "Custom KPI Tables"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,545 @@
+/* ═══════════════════════════════════════════════════════════════
+   Enterprise Developer Portfolio — 목업 1:1 이식
+   Flat White 테마 · 라임 포인트 · 다크 사이드바 · 벤토 그리드
+   UI5 컨트롤 내부 클래스 리셋 방식(기존 Override 방식) 유지
+   ═══════════════════════════════════════════════════════════════ */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+    --pf-bg: #ffffff;
+    --pf-surface-soft: #f7f8fa;
+    --pf-surface-deep: #eff2f5;
+    --pf-sidebar: #2c2c38;
+    --pf-sidebar-hover: #38384a;
+    --pf-text: #1a2128;
+    --pf-text-sub: #4c5967;
+    --pf-text-muted: #788491;
+    --pf-line: #e2e5e9;
+    --pf-accent: #99c421;
+    --pf-accent-soft: #f0f7df;
+    --pf-sap: #0a6ed1;
+    --pf-sap-soft: #edf5ff;
+    --pf-legacy: #7c5cff;
+    --pf-legacy-soft: #f2efff;
+    --pf-success: #218739;
+    --pf-success-soft: #eaf6ed;
+    --pf-shadow: 0 16px 48px rgba(25, 33, 40, 0.08);
+    --pf-ease: cubic-bezier(0.2, 0.6, 0.25, 1);
+}
+
+/* ─── 0. Shell/App/Page 리셋: 헤더·여백 완전 제거 (Full Screen 유지) ─── */
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+
+.pfShellWrap.sapMShell {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    max-width: none !important; margin: 0 !important; padding: 0 !important;
+    z-index: 999;
+    background: var(--pf-bg) !important;
+    background-image: none !important;
+}
+
+.pfShellWrap .sapMShellCentralBox,
+.pfShellWrap .sapMShellContent,
+.pfShellWrap .sapMShellContentContainer {
+    left: 0 !important; width: 100% !important; max-width: none !important;
+    margin: 0 !important; padding: 0 !important; height: 100%;
+}
+
+.pfShellWrap .sapMShellHeader,
+.pfShellWrap .sapMShellBrandingBar { display: none !important; }
+
+/* FLP 샌드박스에서 열려도 앱이 전체를 덮도록 셸 크롬 무력화 */
+#shell-hdr, .sapUshellShellHeader, .sapUshellShellHead { display: none !important; }
+.sapUshellViewPortContainer, .sapUshellShellCanvas, .sapUShellApplicationContainer,
+.sapUshellApplicationContainer {
+    top: 0 !important; left: 0 !important; margin: 0 !important; padding: 0 !important;
+    width: 100% !important; max-width: none !important; height: 100% !important;
+}
+
+.pfRootPage.sapMPage { width: 100%; height: 100%; background: var(--pf-bg); }
+.pfRootPage.sapMPage > section {
+    padding: 0 !important; margin: 0 !important; height: 100% !important; top: 0 !important;
+}
+
+/* ─── 1. Base ─── */
+.sapUiBody,
+.pfShell, .pfMobileHeader,
+.pfShell .sapMText, .pfShell .sapMTitle, .pfShell .sapMBtn bdi,
+.pfShell .sapMLnk, .pfShell .sapMFT,
+.pfMobileHeader .sapMText {
+    font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+}
+
+.pfShell {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--pf-bg);
+    color: var(--pf-text-sub);
+    font-size: 16px;
+}
+
+/* ─── 2. Sidebar ─── */
+.pfSidebar {
+    width: 282px;
+    height: 100vh;
+    background: var(--pf-sidebar);
+    padding: 30px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-y: auto;
+    z-index: 10;
+    transition: transform 200ms var(--pf-ease);
+}
+
+.pfLogoArea { margin: 0 8px 34px; }
+
+.pfLogoText.sapMText, .pfLogoAccent.sapMText {
+    font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.4px;
+}
+.pfLogoAccent.sapMText { color: var(--pf-accent); }
+.pfLogoCaption.sapMText { margin-top: 7px; font-size: 11px; color: #9ca5ae; letter-spacing: 0.9px; }
+
+.pfNavScroll { flex: 1 1 auto; }
+
+.pfNavGroupTitle.sapMText {
+    font-size: 11px; color: #7e8994; font-weight: 800;
+    margin: 24px 0 8px 14px; text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* nav 버튼: UI5 Button 내부 완전 리셋 */
+.pfNavItem.sapMBtn, .pfNavSubItem.sapMBtn {
+    height: auto !important; width: 100%; margin: 0; padding: 0; text-align: left;
+}
+.pfNavItem.sapMBtn .sapMBtnInner, .pfNavSubItem.sapMBtn .sapMBtnInner {
+    background: transparent !important; border: none !important; box-shadow: none !important;
+    height: auto !important; min-width: 0; width: 100%; display: block;
+    text-align: left; border-radius: 6px; transition: 140ms ease;
+}
+.pfNavItem.sapMBtn .sapMBtnContent, .pfNavSubItem.sapMBtn .sapMBtnContent {
+    display: block; text-align: left; line-height: 1.4; height: auto; white-space: normal;
+}
+.pfNavItem.sapMBtn .sapMBtnInner { padding: 12px 14px; }
+.pfNavSubItem.sapMBtn .sapMBtnInner { padding: 10px 12px 10px 28px; }
+.pfNavItem.sapMBtn bdi { font-size: 14px; color: #cfd3d8; font-weight: 500; }
+.pfNavSubItem.sapMBtn bdi { font-size: 13px; color: #cfd3d8; font-weight: 400; line-height: 1.35; }
+
+.pfNavItem.sapMBtn:hover .sapMBtnInner,
+.pfNavSubItem.sapMBtn:hover .sapMBtnInner { background: var(--pf-sidebar-hover) !important; }
+.pfNavItem.sapMBtn:hover bdi, .pfNavSubItem.sapMBtn:hover bdi { color: #ffffff; }
+
+.pfNavItem.pfActive.sapMBtn .sapMBtnInner { background: var(--pf-accent) !important; }
+.pfNavItem.pfActive.sapMBtn bdi { color: #ffffff; font-weight: 800; }
+.pfNavSubItem.pfActive.sapMBtn .sapMBtnInner { background: rgba(153, 196, 33, 0.10) !important; }
+.pfNavSubItem.pfActive.sapMBtn bdi { color: var(--pf-accent); font-weight: 800; }
+
+.pfNavItem.sapMBtn:focus-visible .sapMBtnInner,
+.pfNavSubItem.sapMBtn:focus-visible .sapMBtnInner {
+    outline: 1px dotted rgba(255, 255, 255, 0.5);
+}
+
+.pfSidebarFooter.sapMText {
+    margin-top: auto; padding: 22px 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: #8d98a3; font-size: 11px; line-height: 1.6; white-space: pre-line;
+}
+
+/* ─── 3. 모바일 헤더 + Drawer ─── */
+.pfMobileHeader {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--pf-sidebar);
+    padding: 0 14px;
+    z-index: 1010;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pfMobileLogo .pfLogoText.sapMText, .pfMobileLogo .pfLogoAccent.sapMText { font-size: 17px; }
+
+.pfHamburger.sapMBtn { height: auto !important; }
+.pfHamburger.sapMBtn .sapMBtnInner {
+    background: transparent !important; border: none !important; box-shadow: none !important;
+    height: auto !important; min-width: 0; padding: 8px;
+}
+.pfHamburger.sapMBtn .sapUiIcon { color: #ffffff; font-size: 20px; }
+
+.pfDrawerOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(16, 20, 24, 0.55);
+    z-index: 1005;
+}
+.pfDrawerOverlay.pfOpen { display: block; }
+
+/* ─── 4. Main / Page ─── */
+.pfMain { flex: 1 1 auto; min-width: 0; height: 100vh; background: var(--pf-bg); }
+.pfPageInner { padding: 52px 68px 80px; }
+
+@keyframes pfFadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.pfPageAnim { animation: pfFadeInUp 280ms var(--pf-ease) both; }
+.pfPreEnter { opacity: 0; }
+.pfPreEnter.pfEnterPlay { animation: pfFadeInUp 200ms var(--pf-ease) both; }
+.pfDelay0 { animation-delay: 0ms; }
+.pfDelay100 { animation-delay: 100ms; }
+.pfDelay200 { animation-delay: 200ms; }
+
+/* ─── 5. 공용 타이포/요소 ─── */
+.pfEyebrow.sapMText {
+    font-size: 12px; font-weight: 800; color: var(--pf-text-muted);
+    letter-spacing: 1.2px; text-transform: uppercase;
+}
+.pfPageTitle.sapMTitle, .pfPageTitle.sapMFT {
+    display: block; margin-top: 8px;
+    font-size: clamp(34px, 4vw, 54px) !important;
+    line-height: 1.12 !important; color: var(--pf-text) !important;
+    letter-spacing: -1.6px !important; font-weight: 700 !important;
+}
+.pfPageDesc.sapMText {
+    margin-top: 18px; max-width: 880px; color: var(--pf-text-sub); line-height: 1.8; font-size: 16px;
+}
+.pfSection { margin-top: 58px; }
+.pfSectionHead {
+    padding-bottom: 14px; border-bottom: 1px solid var(--pf-line);
+    margin-bottom: 24px; gap: 20px;
+}
+.pfSectionTitle.sapMTitle {
+    color: var(--pf-text) !important; font-size: 24px !important;
+    letter-spacing: -0.6px !important; font-weight: 700 !important; margin-top: 4px;
+}
+.pfSectionNote.sapMText { color: var(--pf-text-muted); font-size: 13px; }
+.pfCardLabel.sapMText {
+    font-size: 11px; font-weight: 800; color: var(--pf-text-muted);
+    letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* 배지: data-domain / data-type 속성으로 색상 분기 */
+.pfBadgeRow { gap: 6px; }
+.pfBadge.sapMText {
+    display: inline-flex; align-items: center; border-radius: 4px;
+    padding: 5px 8px; font-size: 11px; font-weight: 800; line-height: 1;
+    color: var(--pf-sap); background: var(--pf-sap-soft);
+}
+.pfBadge.pfBadgeNeutral.sapMText { color: #52606d; background: var(--pf-surface-deep); }
+.pfBadge.pfBadgeGreen.sapMText { color: var(--pf-success); background: var(--pf-success-soft); }
+.pfBadge.pfBadgeLegacy.sapMText,
+.pfBadgeDomain[data-domain="LEGACY"].sapMText { color: var(--pf-legacy); background: var(--pf-legacy-soft); }
+.pfBadgeType[data-type="legacy"].sapMText { color: var(--pf-legacy); background: var(--pf-legacy-soft); }
+.pfBadgeType[data-type="neutral"].sapMText { color: #52606d; background: var(--pf-surface-deep); }
+.pfBadgeType[data-type="green"].sapMText { color: var(--pf-success); background: var(--pf-success-soft); }
+
+.pfPill.sapMText {
+    display: inline-flex; padding: 7px 10px; border: 1px solid var(--pf-line);
+    border-radius: 999px; font-size: 12px; color: var(--pf-text-sub); background: #fff; line-height: 1;
+}
+.pfTechTag.sapMText {
+    display: inline-flex; margin: 2px 2px 2px 0; padding: 4px 7px; border-radius: 4px;
+    background: var(--pf-surface-deep); color: var(--pf-text); font-size: 11px; font-weight: 700; line-height: 1.4;
+}
+.pfTagRow { gap: 4px; }
+
+/* ─── 6. Dashboard: Hero ─── */
+.pfHero {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--pf-line); border-radius: 10px;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 62%, #f2f8e5 100%);
+    padding: 54px;
+}
+.pfHero::after {
+    content: '';
+    position: absolute; width: 330px; height: 330px; right: -120px; top: -150px;
+    border: 54px solid rgba(153, 196, 33, 0.09); border-radius: 50%;
+}
+.pfHeroKicker.sapMText {
+    position: relative; z-index: 1; font-size: 12px; color: var(--pf-accent);
+    font-weight: 900; letter-spacing: 1.2px;
+}
+.pfHeroTitle.sapMFT {
+    position: relative; z-index: 1; display: block; margin-top: 14px; max-width: 860px;
+    font-size: clamp(34px, 4vw, 52px); line-height: 1.2; letter-spacing: -1.7px;
+    color: var(--pf-text); font-weight: 700;
+}
+.pfHeroDesc.sapMText {
+    position: relative; z-index: 1; margin-top: 22px; max-width: 900px;
+    font-size: 16px; line-height: 1.8; color: var(--pf-text-sub);
+}
+.pfHeroActions { position: relative; z-index: 1; margin-top: 30px; gap: 10px; }
+
+/* Hero 버튼: data-primary 속성으로 분기 */
+.pfHeroBtn.sapMBtn, .pfBtnSecondary.sapMBtn, .pfBackBtn.sapMBtn, .pfBtnPlay.sapMBtn { height: auto !important; }
+.pfHeroBtn.sapMBtn .sapMBtnInner,
+.pfBtnSecondary.sapMBtn .sapMBtnInner,
+.pfBackBtn.sapMBtn .sapMBtnInner,
+.pfBtnPlay.sapMBtn .sapMBtnInner {
+    border-radius: 5px !important; box-shadow: none !important;
+    height: auto !important; min-width: 0; transition: 140ms ease;
+}
+.pfHeroBtn.sapMBtn .sapMBtnContent, .pfBtnSecondary.sapMBtn .sapMBtnContent,
+.pfBackBtn.sapMBtn .sapMBtnContent, .pfBtnPlay.sapMBtn .sapMBtnContent {
+    height: auto; line-height: 1.5;
+}
+.pfHeroBtn[data-primary="true"].sapMBtn .sapMBtnInner {
+    background: var(--pf-text) !important; border: none !important; padding: 11px 18px;
+}
+.pfHeroBtn[data-primary="true"].sapMBtn bdi { color: #ffffff; font-size: 13px; font-weight: 800; }
+.pfHeroBtn[data-primary="true"].sapMBtn:hover .sapMBtnInner {
+    transform: translateY(-1px); box-shadow: var(--pf-shadow);
+}
+.pfHeroBtn[data-primary="false"].sapMBtn .sapMBtnInner,
+.pfBtnSecondary.sapMBtn .sapMBtnInner {
+    background: #ffffff !important; border: 1px solid var(--pf-line) !important; padding: 11px 18px;
+}
+.pfHeroBtn[data-primary="false"].sapMBtn bdi,
+.pfBtnSecondary.sapMBtn bdi { color: var(--pf-text); font-size: 13px; font-weight: 800; }
+.pfHeroBtn[data-primary="false"].sapMBtn:hover .sapMBtnInner,
+.pfBtnSecondary.sapMBtn:hover .sapMBtnInner { border-color: var(--pf-text) !important; }
+
+/* ─── 7. Bridge ─── */
+.pfBridgeGrid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.pfBridgeCard {
+    position: relative; min-height: 176px; padding: 26px;
+    border: 1px solid var(--pf-line); border-radius: 8px; background: #fff;
+}
+.pfBridgeCard:not(:last-child)::after {
+    content: '\2192';
+    position: absolute; right: -17px; top: 72px; z-index: 2;
+    width: 32px; height: 32px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--pf-text); color: #fff; font-weight: 800;
+}
+.pfBridgeStep.sapMText { color: var(--pf-accent); font-size: 12px; font-weight: 900; }
+.pfBridgeTitle.sapMTitle {
+    margin-top: 18px; color: var(--pf-text) !important;
+    font-size: 19px !important; font-weight: 700 !important;
+}
+.pfBridgeDesc.sapMText { margin-top: 10px; font-size: 13px; line-height: 1.7; color: var(--pf-text-muted); }
+
+/* ─── 8. Project Cards (List → 2열 그리드) ─── */
+.pfProjectGrid.sapMList { background: transparent; }
+.pfProjectGrid .sapMListItems {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px;
+}
+.pfProjectCard.sapMLIB {
+    border: 1px solid var(--pf-line) !important; border-radius: 9px;
+    background: #fff !important; cursor: pointer; transition: 150ms ease; overflow: hidden;
+}
+.pfProjectCard.sapMLIB:hover {
+    transform: translateY(-3px); border-color: var(--pf-accent) !important; box-shadow: var(--pf-shadow);
+}
+.pfProjectCard.sapMLIB.sapMLIBActive { background: #fff !important; }
+.pfProjectCard.sapMLIB.sapMLIBActive * { color: inherit; }
+.pfProjectCard .sapMLIBContent { width: 100%; }
+.pfProjectCardInner { padding: 26px; min-height: 236px; }
+.pfProjectIndex.sapMText { color: #a1abb4; font-size: 12px; font-weight: 800; }
+.pfProjectCardTitle.sapMTitle {
+    margin-top: 26px; color: var(--pf-text) !important;
+    font-size: 21px !important; line-height: 1.35 !important;
+    letter-spacing: -0.5px !important; font-weight: 700 !important;
+}
+.pfProjectCardDesc.sapMText { margin-top: 10px; color: var(--pf-text-muted); font-size: 13px; line-height: 1.7; }
+.pfProjectCardBottom { margin-top: auto; padding-top: 22px; }
+.pfProjectMeta.sapMText { color: var(--pf-text-sub); font-size: 12px; font-weight: 700; }
+.pfArrow.sapMText { font-size: 18px; color: var(--pf-accent); }
+.pfPostGrid .sapMListItems { margin-top: 16px; }
+.pfPostGrid .pfProjectCardInner { min-height: 180px; }
+
+/* ─── 9. 상세 헤더 ─── */
+.pfProjHeader { margin-bottom: 42px; gap: 30px; }
+.pfProjHeaderCopy { max-width: 920px; }
+.pfProjCategory.sapMText {
+    font-size: 12px; font-weight: 900; color: var(--pf-text-muted); letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+.pfProjName.sapMTitle {
+    margin-top: 10px; font-size: clamp(36px, 4vw, 52px) !important;
+    line-height: 1.12 !important; letter-spacing: -1.5px !important;
+    color: var(--pf-text) !important; font-weight: 700 !important;
+}
+.pfProjKor.sapMTitle {
+    margin-top: 7px; font-size: 22px !important; color: var(--pf-text) !important; font-weight: 700 !important;
+}
+.pfProjSummary.sapMText { margin-top: 18px; line-height: 1.8; color: var(--pf-text-sub); font-size: 16px; }
+.pfHeaderBadges { margin-top: 16px; }
+
+.pfBackBtn.sapMBtn { flex-shrink: 0; }
+.pfBackBtn.sapMBtn .sapMBtnInner {
+    padding: 9px 13px; border: 1px solid var(--pf-line) !important; background: #fff !important;
+}
+.pfBackBtn.sapMBtn bdi { color: var(--pf-text); font-size: 12px; font-weight: 800; }
+.pfBackBtn.sapMBtn:hover .sapMBtnInner { border-color: var(--pf-text) !important; }
+
+/* ─── 10. Bento Grid ─── */
+.pfBentoGrid { display: grid !important; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+.pfBentoCard {
+    border: 1px solid var(--pf-line); border-radius: 9px;
+    background: #fff; padding: 28px; box-shadow: none;
+}
+.pfBentoVisual { grid-column: span 8; min-height: 330px; display: flex; flex-direction: column; }
+.pfBentoInfo { grid-column: span 4; display: flex; flex-direction: column; gap: 24px; }
+.pfBentoHalf { grid-column: span 6; }
+.pfBentoFull { grid-column: span 12; }
+.pfSectionsWrap { display: contents; }
+
+.pfVisualPlaceholder {
+    flex: 1; margin-top: 16px;
+    border: 1px dashed #cdd3d9; border-radius: 7px;
+    background: linear-gradient(135deg, #f4f6f8, #ffffff);
+    min-height: 260px; text-align: center; color: var(--pf-text-muted); padding: 30px;
+}
+.pfVisualMark.sapMText {
+    margin: 0 auto 16px; width: 72px; height: 72px; border-radius: 18px;
+    display: grid; place-items: center; font-weight: 900; font-size: 22px;
+    color: var(--pf-sap); background: var(--pf-sap-soft);
+}
+.pfVisualMark[data-domain="LEGACY"].sapMText { color: var(--pf-legacy); background: var(--pf-legacy-soft); }
+.pfVisualTitle.sapMText { color: var(--pf-text); font-size: 17px; font-weight: 700; margin-bottom: 7px; }
+.pfVisualSub.sapMText { font-size: 13px; color: var(--pf-text-muted); }
+
+.pfBtnPlay.sapMBtn { margin-top: 16px; }
+.pfBtnPlay.sapMBtn .sapMBtnInner {
+    background: var(--pf-text) !important; border: none !important; padding: 10px 24px;
+    border-radius: 4px !important;
+}
+.pfBtnPlay.sapMBtn bdi { color: #ffffff; font-weight: 700; font-size: 14px; }
+.pfBtnPlay.sapMBtn:hover .sapMBtnInner { background: #343f4a !important; }
+.pfVideoBtn.sapMBtn { align-self: flex-start; }
+
+.pfInfoBlock { gap: 7px; }
+.pfInfoLabel.sapMText { font-size: 10px; font-weight: 900; color: var(--pf-text-muted); letter-spacing: 1px; }
+.pfInfoValue.sapMText { color: var(--pf-text); font-size: 14px; line-height: 1.55; font-weight: 600; }
+
+.pfBigCopy.sapMText { margin-top: 13px; color: var(--pf-text); font-size: 20px; line-height: 1.5; font-weight: 800; }
+.pfBodyCopy.sapMFT { display: block; margin-top: 12px; font-size: 14px; line-height: 1.8; color: var(--pf-text-sub); }
+.pfBodySection { margin: 0; }
+
+/* Feature list (✓ 마커) */
+.pfFeatureList { margin-top: 18px; display: flex; flex-direction: column; gap: 13px; }
+.pfFeatureItem.sapMText {
+    position: relative; display: block; padding-left: 30px;
+    color: var(--pf-text); font-size: 14px; line-height: 1.6;
+}
+.pfFeatureItem.sapMText::before {
+    content: '\2713';
+    position: absolute; left: 0; top: 1px;
+    width: 19px; height: 19px; display: grid; place-items: center;
+    color: var(--pf-accent); font-weight: 900;
+}
+.pfTroubleItem { gap: 4px; }
+.pfTroubleSolution.sapMText {
+    margin-left: 30px; font-size: 13px; color: var(--pf-text-muted); line-height: 1.6;
+}
+
+/* Process Flow */
+.pfProcessFlow { margin-top: 20px; display: grid !important; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; }
+.pfProcessStep {
+    position: relative; padding: 18px 14px;
+    border: 1px solid var(--pf-line); background: var(--pf-surface-soft);
+    border-radius: 6px; text-align: center;
+}
+.pfProcessStepText.sapMText { color: var(--pf-text); font-size: 12px; font-weight: 800; line-height: 1.5; text-align: center; }
+.pfProcessStep:not(:last-child)::after {
+    content: '\2192';
+    position: absolute; right: -10px; top: 50%; transform: translate(50%, -50%);
+    color: var(--pf-accent); font-size: 18px; z-index: 2;
+}
+
+/* 갤러리 (Carousel 오버라이드) */
+.pfGallery.sapMCrsl { margin-top: 16px; min-height: 300px; border-radius: 7px; background: var(--pf-surface-soft); }
+.pfGallery .sapMCrslInner { border-radius: 7px; }
+.pfGallerySlide { padding: 14px; height: 100%; }
+.pfGalleryImage.sapMImg { max-width: 100%; max-height: 320px; object-fit: contain; border-radius: 4px; }
+.pfGalleryCaption.sapMText { margin-top: 10px; font-size: 12px; color: var(--pf-text-muted); }
+
+/* ─── 11. Skills / Career ─── */
+.pfSkillGrid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.pfSkillCard { border: 1px solid var(--pf-line); border-radius: 8px; padding: 24px; background: #fff; }
+.pfSkillTitle.sapMTitle {
+    color: var(--pf-text) !important; font-size: 17px !important;
+    margin-top: 14px; font-weight: 700 !important;
+}
+.pfSkillDesc.sapMText { margin-top: 9px; font-size: 13px; line-height: 1.7; color: var(--pf-text-muted); }
+.pfSkillTags { margin-top: 16px; gap: 6px; }
+
+.pfTimeline { position: relative; padding-left: 28px; }
+.pfTimeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--pf-line);
+}
+.pfTimelineItem { position: relative; padding: 0 0 30px 22px; }
+.pfTimelineItem:last-child { padding-bottom: 0; }
+.pfTimelineItem::before {
+    content: ''; position: absolute; left: -27px; top: 5px; width: 12px; height: 12px;
+    background: var(--pf-accent); border: 3px solid #fff;
+    box-shadow: 0 0 0 1px var(--pf-line); border-radius: 50%;
+}
+.pfTimelineYear.sapMText { font-size: 11px; color: var(--pf-text-muted); font-weight: 900; letter-spacing: 0.8px; }
+.pfTimelineTitle.sapMTitle {
+    margin-top: 6px; color: var(--pf-text) !important; font-size: 18px !important; font-weight: 700 !important;
+}
+.pfTimelineDesc.sapMText { margin-top: 7px; font-size: 13px; line-height: 1.7; color: var(--pf-text-sub); }
+
+.pfContactCard {
+    margin-top: 30px; border: 1px solid var(--pf-line); border-radius: 9px;
+    padding: 30px; background: var(--pf-surface-soft);
+}
+.pfContactTitle.sapMTitle { color: var(--pf-text) !important; font-weight: 700 !important; }
+.pfContactBody.sapMText { margin-top: 10px; line-height: 1.7; font-size: 13px; color: var(--pf-text-sub); }
+.pfContactLinks { margin-top: 18px; gap: 8px; }
+
+/* ─── 12. 빈 상태 / 오류 상태 ─── */
+.pfEmptyState, .pfErrorState {
+    border: 1px dashed #cdd3d9; border-radius: 8px;
+    padding: 40px; text-align: center; background: var(--pf-surface-soft);
+}
+.pfEmptyText.sapMText, .pfErrorTitle.sapMTitle {
+    color: var(--pf-text) !important; font-size: 16px !important; font-weight: 700 !important;
+}
+.pfEmptySub.sapMText, .pfErrorDesc.sapMText {
+    margin-top: 8px; font-size: 13px; color: var(--pf-text-muted); line-height: 1.7;
+}
+.pfErrorState { text-align: left; }
+.pfErrorState .pfBackBtn { margin-top: 18px; align-self: flex-start; }
+
+/* ─── 13. 반응형 ─── */
+@media (max-width: 1120px) {
+    .pfSidebar { width: 250px; }
+    .pfPageInner { padding: 42px 36px 70px; }
+    .pfBentoVisual, .pfBentoInfo, .pfBentoHalf { grid-column: span 12; }
+    .pfBridgeGrid, .pfSkillGrid { grid-template-columns: 1fr; }
+    .pfBridgeCard:not(:last-child)::after {
+        content: '\2193';
+        right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%);
+    }
+    .pfProcessFlow { grid-auto-flow: row; grid-auto-columns: unset; grid-template-columns: 1fr; }
+    .pfProcessStep:not(:last-child)::after {
+        content: '\2193';
+        right: auto; top: auto; bottom: -12px; left: 50%; transform: translate(-50%, 50%);
+    }
+}
+
+@media (max-width: 900px) {
+    /* 모바일: 헤더 + Drawer 사이드바 */
+    .pfMobileHeader { display: flex; }
+    .pfSidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        z-index: 1008;
+        padding-top: 68px;
+    }
+    .pfSidebar.pfOpen { transform: translateX(0); box-shadow: var(--pf-shadow); }
+    .pfMain { padding-top: 56px; height: 100vh; }
+    .pfPageInner { padding: 26px 18px 60px; }
+    .pfHero { padding: 34px 26px; }
+    .pfProjectGrid .sapMListItems { grid-template-columns: 1fr; }
+    .pfProjHeader { display: block; }
+    .pfBackBtn.sapMBtn { margin-top: 20px; }
+    .pfBentoGrid { display: block !important; }
+    .pfBentoCard { margin-bottom: 16px; }
+}

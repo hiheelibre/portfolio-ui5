@@ -1,0 +1,84 @@
+{
+  "moduleId": "MM",
+  "postId": "pr-management",
+  "title": "구매요청 관리!!!",
+  "subtitle": "PR 생성부터 확정까지",
+  "owner": "김MM",
+  "status": "Published",
+  "order": 10,
+  "videoUrl": "https://youtu.be/sHRSiPhOT28?si=JWt9GQUsTK3Subsh",
+  "thumbnailUrl": "",
+  "summary": "구매요청 흐름을 구현한 기능입니다.",
+  "tags": [
+    "PR",
+    "ALV",
+    "상태관리"
+  ],
+  "process": [
+    {
+      "text": "PR 생성"
+    },
+    {
+      "text": "품목 입력"
+    },
+    {
+      "text": "확정"
+    }
+  ],
+  "implementation": [
+    {
+      "text": "헤더/아이템 구조 분리"
+    },
+    {
+      "text": "상태값 기반 필터링"
+    },
+    {
+      "text": "납기요청일 D-Day 계산"
+    }
+  ],
+  "tables": [
+    {
+      "text": "ZTC1MM0025"
+    },
+    {
+      "text": "ZTC1MM0026"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "기능 개요",
+      "body": "구매요청 관리에 대한 테스트 파일입니다."
+    },
+    {
+      "heading": "업무 흐름",
+      "body": "사용자가 구매요청 생성\n자재/수량/납기 입력\n품목 확정\nPO 생성 대상으로 반영"
+    },
+    {
+      "heading": "구현 포인트",
+      "body": "- 헤더/아이템 구조 분리\n- 상태값 기반 필터링\n- 납기요청일 D-Day 계산"
+    },
+    {
+      "heading": "주요 화면",
+      "body": "이미지 또는 설명"
+    },
+    {
+      "heading": "트러블슈팅",
+      "body": ""
+    },
+    {
+      "heading": "문제",
+      "body": "어떤 문제가 있었는지"
+    },
+    {
+      "heading": "해결",
+      "body": "어떻게 해결했는지"
+    },
+    {
+      "heading": "배운 점",
+      "body": "이 기능을 만들면서 배운 점"
+    }
+  ],
+  "troubleShooting": [],
+  "screenshots": [],
+  "bodyImages": []
+}
