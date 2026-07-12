@@ -107,13 +107,16 @@ sap.ui.define([
                 var sGroup = that._groupOf(oModule);
                 var nGroupOrder = that._groupOrderOf(oModule);
 
-                if (!oGroupMap[sGroup]) {
-                    oGroupMap[sGroup] = { title: sGroup, order: nGroupOrder, items: [] };
+                /* 병합 키: 공백/대소문자 차이("SAP S/4 HANA" vs "SAP S/4HANA")를 흡수 */
+                var sKey = sGroup.replace(/\s+/g, "").toUpperCase();
+
+                if (!oGroupMap[sKey]) {
+                    oGroupMap[sKey] = { title: sGroup, order: nGroupOrder, items: [] };
                 }
                 /* 같은 그룹에서 가장 작은 GroupOrder를 대표값으로 사용 */
-                oGroupMap[sGroup].order = Math.min(oGroupMap[sGroup].order, nGroupOrder);
+                oGroupMap[sKey].order = Math.min(oGroupMap[sKey].order, nGroupOrder);
 
-                oGroupMap[sGroup].items.push({
+                oGroupMap[sKey].items.push({
                     code: sCode,
                     label: oModule.displayName ||
                         (oModule.subtitle ? sCode + " " + oModule.subtitle : oModule.title || sCode),
@@ -189,12 +192,14 @@ sap.ui.define([
             return 999;
         },
 
-        /** 배지/비주얼 색상용: 명시 Domain → 그룹 기준 파생 */
+        /**
+         * 배지/비주얼 색상용 도메인: 그룹 기준으로 일관 파생.
+         * (sync가 Domain 미입력 시 "SAP"을 기본 저장하므로 저장값 대신
+         *  그룹을 신뢰해야 NON-SAP 모듈이 올바른 스타일을 받는다)
+         */
         _domainOf: function (oModule) {
-            if (oModule.domain) {
-                return String(oModule.domain).toUpperCase() === "LEGACY" ? "LEGACY" : "SAP";
-            }
-            return this._groupOf(oModule) === "SAP S/4HANA" ? "SAP" : "LEGACY";
+            var sKey = this._groupOf(oModule).replace(/\s+/g, "").toUpperCase();
+            return sKey === "SAPS/4HANA" ? "SAP" : "LEGACY";
         },
 
         /* ============================= hash routing ============================ */

@@ -394,8 +394,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
     min-height: 260px; text-align: center; color: var(--pf-text-muted); padding: 30px;
 }
 .pfVisualMark.sapMText {
-    margin: 0 auto 16px; width: 72px; height: 72px; border-radius: 18px;
-    display: grid; place-items: center; font-weight: 900; font-size: 22px;
+    margin: 0 auto 16px; min-width: 72px; width: auto; height: 72px;
+    padding: 0 16px; border-radius: 18px; white-space: nowrap;
+    display: grid; place-items: center; font-weight: 900; font-size: 20px;
     color: var(--pf-sap); background: var(--pf-sap-soft);
 }
 .pfVisualMark[data-domain="LEGACY"].sapMText { color: var(--pf-legacy); background: var(--pf-legacy-soft); }

@@ -44,6 +44,50 @@
       "tables": [],
       "posts": []
     },
+    "ECO": {
+      "code": "ECO",
+      "title": "국립생태원 MOTIVE 시스템",
+      "domain": "SAP",
+      "displayName": "",
+      "order": 20,
+      "group": "NON-SAP SYSTEM",
+      "groupOrder": 20,
+      "subtitle": "생태·환경 업무 데이터 관리시스템",
+      "eyebrow": "PUBLIC ECOLOGICAL SYSTEM",
+      "owner": "기획",
+      "process": "자료 등록 → 검증 → 조회·분석 → 업무 활용",
+      "description": "국립생태원의 생태·환경 관련 업무 데이터를 등록하고 조회·활용하기 위한 공공 웹시스템",
+      "videoLabel": "시스템 시연 영상",
+      "videoUrl": "",
+      "screenshots": [],
+      "features": [
+        {
+          "text": "업무자료 등록"
+        },
+        {
+          "text": "검색조건 조회"
+        },
+        {
+          "text": "데이터 검증"
+        },
+        {
+          "text": "결과 활용"
+        }
+      ],
+      "techPoints": [
+        {
+          "text": "복합 검색조건 처리"
+        },
+        {
+          "text": "데이터 구조 설계"
+        },
+        {
+          "text": "사용자 업무 흐름 반영"
+        }
+      ],
+      "tables": [],
+      "posts": []
+    },
     "MM": {
       "code": "MM",
       "title": "Materials Management",
