@@ -1,5 +1,38 @@
 {
   "modules": {
+    "OV": {
+      "code": "OV",
+      "title": "얍",
+      "domain": "SAP",
+      "displayName": "",
+      "order": 10,
+      "subtitle": "ㅋㅋㅋ",
+      "eyebrow": "ㅋㅋ",
+      "owner": "ㅋㅋㅋㅋㅋ",
+      "process": "ㅋㅋㅋㅋㅋㅋ",
+      "description": "ㅋㅋㅋㅋ",
+      "videoLabel": "ㅋㅋㅋㅋㅋㅋㅋ",
+      "videoUrl": "",
+      "features": [],
+      "techPoints": [],
+      "tables": [],
+      "posts": [
+        {
+          "id": "project-overview",
+          "title": "프로젝트 개요",
+          "summary": "태산자전거 ERP 프로젝트의 전체 목적, 구조, 모듈 흐름, 외부 공개 방식을 소개합니다.",
+          "owner": "TEAM TAESAN",
+          "thumbnail": "",
+          "tags": [
+            "Overview",
+            "Portfolio",
+            "SAPUI5",
+            "Netlify"
+          ],
+          "order": 10
+        }
+      ]
+    },
     "MM": {
       "code": "MM",
       "title": "Materials Management",
@@ -51,69 +84,6 @@
             "PR",
             "ALV",
             "상태관리"
-          ],
-          "order": 10
-        }
-      ]
-    },
-    "OV": {
-      "code": "OV",
-      "title": "Overview Dashboard",
-      "subtitle": "ERP 통합 포털 개요",
-      "eyebrow": "ERP CONTROL TOWER",
-      "owner": "TEAM TAESAN",
-      "process": "Company Story → ERP Portal → Module Portfolio",
-      "description": "태산자전거 ERP 프로젝트의 전체 구조, 업무 흐름, 모듈 간 연계, 팀별 구현 범위를 소개하는 통합 포트폴리오 페이지입니다.",
-      "videoLabel": "프로젝트 전체 소개 영상",
-      "videoUrl": "",
-      "features": [
-        {
-          "text": "ERP 전체 프로세스 소개"
-        },
-        {
-          "text": "모듈별 담당 영역 안내"
-        },
-        {
-          "text": "시연 영상 허브 역할"
-        },
-        {
-          "text": "외부 공개용 포트폴리오 진입점"
-        }
-      ],
-      "techPoints": [
-        {
-          "text": "SAP 서버 종료 이후에도 접근 가능한 정적 포트폴리오 구조"
-        },
-        {
-          "text": "UI5 라우팅 기반 모듈 상세 페이지 구성"
-        },
-        {
-          "text": "팀원별 영상/설명 컨텐츠 확장 가능"
-        }
-      ],
-      "tables": [
-        {
-          "text": "Project Summary"
-        },
-        {
-          "text": "Module Navigation"
-        },
-        {
-          "text": "Portfolio Contents"
-        }
-      ],
-      "posts": [
-        {
-          "id": "project-overview",
-          "title": "프로젝트 개요",
-          "summary": "태산자전거 ERP 프로젝트의 전체 목적, 구조, 모듈 흐름, 외부 공개 방식을 소개합니다.",
-          "owner": "TEAM TAESAN",
-          "thumbnail": "",
-          "tags": [
-            "Overview",
-            "Portfolio",
-            "SAPUI5",
-            "Netlify"
           ],
           "order": 10
         }

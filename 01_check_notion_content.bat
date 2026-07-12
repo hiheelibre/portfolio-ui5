@@ -2,7 +2,7 @@
 chcp 65001 > nul
 
 echo ========================================
-echo  TAESAN ERP Portfolio Content Check
+echo  HIHEE Portfolio Content Check
 echo ========================================
 echo.
 

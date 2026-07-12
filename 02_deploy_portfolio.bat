@@ -2,7 +2,7 @@
 chcp 65001 > nul
 
 echo ========================================
-echo  TAESAN ERP Portfolio Deploy
+echo  HIHEE Portfolio Deploy
 echo ========================================
 echo.
 
