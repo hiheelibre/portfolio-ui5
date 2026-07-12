@@ -33,10 +33,14 @@ npm run notion:deploy   # Netlify Build Hook 호출 (콘텐츠만 변경 시)
 
 `#dashboard` · `#module/{Code}` · `#post/{Module}/{PostId}` · `#skills` · `#career`
 
-## 분류 (Modules DB 선택 속성)
+## 사이드바 대분류 (Modules DB 속성)
 
-- `Domain`[select]: `SAP`(기본) / `LEGACY` → 사이드바 그룹 분리
-- `DisplayName`[rich_text]: 사이드바 표기명 (없으면 code+subtitle)
+- `Group`[select]: 사이드바 대분류 (예: `SAP S/4HANA`, `NON-SAP SYSTEM`).
+  새 Group 값을 추가하면 소스 수정 없이 자동 표시. 없으면 `SAP S/4HANA` 폴백(기존 데이터 호환)
+- `GroupOrder`[number]: 대분류 정렬 (SAP=10, NON-SAP=20 권장)
+- `Order`[number]: 그룹 내부 모듈 정렬
+- `DisplayName`[rich_text]: 사이드바 표기명 (없으면 code+subtitle, 그것도 없으면 title)
+- `ScreenUrls`[rich_text]: 모듈 상세 갤러리 이미지 (줄바꿈 구분, 빌드 시 로컬화)
 - 고정 문구(Hero/Bridge/Skills/Career)는 `webapp/config/site.json` (빌드 재생성 대상 아님)
 
 ## 주의

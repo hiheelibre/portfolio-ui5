@@ -1,37 +1,48 @@
 {
   "modules": {
-    "OV": {
-      "code": "OV",
-      "title": "얍",
+    "WATER": {
+      "code": "WATER",
+      "title": "환경부 수질오염총량관리시스템",
       "domain": "SAP",
       "displayName": "",
       "order": 10,
-      "subtitle": "ㅋㅋㅋ",
-      "eyebrow": "ㅋㅋ",
-      "owner": "ㅋㅋㅋㅋㅋ",
-      "process": "ㅋㅋㅋㅋㅋㅋ",
-      "description": "ㅋㅋㅋㅋ",
-      "videoLabel": "ㅋㅋㅋㅋㅋㅋㅋ",
+      "group": "NON-SAP SYSTEM",
+      "groupOrder": 20,
+      "subtitle": "수질오염총량관리 전산시스템",
+      "eyebrow": "PUBLIC ENVIRONMENTAL SYSTEM",
+      "owner": "PM",
+      "process": "자료 등록 → 검증 → 산정·조회 → 결과 관리",
+      "description": "수질오염총량관리 업무 데이터를 등록·검증하고 산정 결과와 관련 행정자료를 관리하는 공공 웹시스템",
+      "videoLabel": "시스템 시연 영상",
       "videoUrl": "",
-      "features": [],
-      "techPoints": [],
-      "tables": [],
-      "posts": [
+      "screenshots": [],
+      "features": [
         {
-          "id": "project-overview",
-          "title": "프로젝트 개요",
-          "summary": "태산자전거 ERP 프로젝트의 전체 목적, 구조, 모듈 흐름, 외부 공개 방식을 소개합니다.",
-          "owner": "TEAM TAESAN",
-          "thumbnail": "",
-          "tags": [
-            "Overview",
-            "Portfolio",
-            "SAPUI5",
-            "Netlify"
-          ],
-          "order": 10
+          "text": "업무자료 관리"
+        },
+        {
+          "text": "입력값 검증"
+        },
+        {
+          "text": "조건별 조회"
+        },
+        {
+          "text": "결과 관리"
         }
-      ]
+      ],
+      "techPoints": [
+        {
+          "text": "업무 규칙 반영"
+        },
+        {
+          "text": "데이터 정합성 검증"
+        },
+        {
+          "text": "검색·조회 기능 구현"
+        }
+      ],
+      "tables": [],
+      "posts": []
     },
     "MM": {
       "code": "MM",
@@ -39,6 +50,8 @@
       "domain": "SAP",
       "displayName": "",
       "order": 30,
+      "group": "SAP S/4 HANA",
+      "groupOrder": 10,
       "subtitle": "구매 및 자재관리",
       "eyebrow": "PROCUREMENT MODULE",
       "owner": "MM 담당자",
@@ -46,6 +59,7 @@
       "description": "구매요청부터 송장검증까지",
       "videoLabel": "MM 시연 영상",
       "videoUrl": "",
+      "screenshots": [],
       "features": [
         {
           "text": "구매요청 관리"
@@ -84,6 +98,39 @@
             "PR",
             "ALV",
             "상태관리"
+          ],
+          "order": 10
+        }
+      ]
+    },
+    "OV": {
+      "code": "OV",
+      "title": "얍",
+      "domain": "SAP",
+      "displayName": "",
+      "order": 10,
+      "subtitle": "ㅋㅋㅋ",
+      "eyebrow": "ㅋㅋ",
+      "owner": "ㅋㅋㅋㅋㅋ",
+      "process": "ㅋㅋㅋㅋㅋㅋ",
+      "description": "ㅋㅋㅋㅋ",
+      "videoLabel": "ㅋㅋㅋㅋㅋㅋㅋ",
+      "videoUrl": "",
+      "features": [],
+      "techPoints": [],
+      "tables": [],
+      "posts": [
+        {
+          "id": "project-overview",
+          "title": "프로젝트 개요",
+          "summary": "태산자전거 ERP 프로젝트의 전체 목적, 구조, 모듈 흐름, 외부 공개 방식을 소개합니다.",
+          "owner": "TEAM TAESAN",
+          "thumbnail": "",
+          "tags": [
+            "Overview",
+            "Portfolio",
+            "SAPUI5",
+            "Netlify"
           ],
           "order": 10
         }
@@ -180,6 +227,23 @@
         },
         {
           "text": "ACDOCA"
+        }
+      ],
+      "posts": [
+        {
+          "id": "wip-settlement",
+          "title": "재공품(WIP) 산정",
+          "summary": "월말 기준 생산 중인 오더의 누적 원가를 집계하여 WIP를 산정하고, 전월 대비 증감액을 정산하는 기능입니다.",
+          "owner": "한지희",
+          "thumbnail": "",
+          "tags": [
+            "WIP",
+            "ALV",
+            "상태관리",
+            "결산",
+            "전표"
+          ],
+          "order": 0
         }
       ]
     },

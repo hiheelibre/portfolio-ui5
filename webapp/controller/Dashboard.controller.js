@@ -34,7 +34,7 @@ sap.ui.define([
 
             /* 뷰 모델: 빈 골격만 유지 (프로젝트 데이터 하드코딩 금지) */
             this._oVm = new JSONModel({
-                nav: { sap: [], legacy: [] },
+                nav: { groups: [] },
                 cards: [],
                 module: this._emptyModule(),
                 post: this._emptyPost(),
@@ -91,30 +91,41 @@ sap.ui.define([
                 });
         },
 
-        /** 사이드바: Domain(SAP/LEGACY) 기준 그룹, Order·동기화 순서 유지 */
+        /**
+         * 사이드바: modules.json의 Group/GroupOrder 기준 동적 그룹화.
+         * - Published 모듈만 modules.json에 존재하므로 그대로 표시
+         * - 대분류: GroupOrder 오름차순 / 그룹 내부: Order 오름차순
+         * - 새 Group·모듈을 Notion에 추가하면 소스 수정 없이 자동 노출
+         * - Group 없는 과거 데이터는 "SAP S/4HANA"로 폴백 (하위 호환)
+         */
         _buildNav: function () {
             var that = this;
-            var aSap = [];
-            var aLegacy = [];
+            var oGroupMap = {};
 
             this._sortedModuleCodes().forEach(function (sCode) {
                 var oModule = that._modules[sCode];
-                var oItem = {
+                var sGroup = that._groupOf(oModule);
+                var nGroupOrder = that._groupOrderOf(oModule);
+
+                if (!oGroupMap[sGroup]) {
+                    oGroupMap[sGroup] = { title: sGroup, order: nGroupOrder, items: [] };
+                }
+                /* 같은 그룹에서 가장 작은 GroupOrder를 대표값으로 사용 */
+                oGroupMap[sGroup].order = Math.min(oGroupMap[sGroup].order, nGroupOrder);
+
+                oGroupMap[sGroup].items.push({
                     code: sCode,
                     label: oModule.displayName ||
                         (oModule.subtitle ? sCode + " " + oModule.subtitle : oModule.title || sCode),
                     domain: that._domainOf(oModule)
-                };
-
-                if (oItem.domain === "LEGACY") {
-                    aLegacy.push(oItem);
-                } else {
-                    aSap.push(oItem);
-                }
+                });
             });
 
-            this._oVm.setProperty("/nav/sap", aSap);
-            this._oVm.setProperty("/nav/legacy", aLegacy);
+            var aGroups = Object.keys(oGroupMap)
+                .map(function (sKey) { return oGroupMap[sKey]; })
+                .sort(function (a, b) { return a.order - b.order; });
+
+            this._oVm.setProperty("/nav/groups", aGroups);
         },
 
         /** 대시보드 카드: 모든 모듈의 Published 게시글(modules.json posts) 평탄화 */
@@ -160,8 +171,30 @@ sap.ui.define([
             });
         },
 
+        /** Group 폴백: Group → (구)Domain=LEGACY → 기본 "SAP S/4HANA" */
+        _groupOf: function (oModule) {
+            if (oModule.group) { return oModule.group; }
+            if (String(oModule.domain || "").toUpperCase() === "LEGACY") {
+                return "NON-SAP SYSTEM";
+            }
+            return "SAP S/4HANA";
+        },
+
+        /** GroupOrder 폴백: 명시값 → 알려진 그룹 기본값(SAP=10/NON-SAP=20) → 999 */
+        _groupOrderOf: function (oModule) {
+            if (oModule.groupOrder) { return Number(oModule.groupOrder); }
+            var sGroup = this._groupOf(oModule);
+            if (sGroup === "SAP S/4HANA") { return 10; }
+            if (sGroup === "NON-SAP SYSTEM") { return 20; }
+            return 999;
+        },
+
+        /** 배지/비주얼 색상용: 명시 Domain → 그룹 기준 파생 */
         _domainOf: function (oModule) {
-            return String(oModule.domain || "SAP").toUpperCase() === "LEGACY" ? "LEGACY" : "SAP";
+            if (oModule.domain) {
+                return String(oModule.domain).toUpperCase() === "LEGACY" ? "LEGACY" : "SAP";
+            }
+            return this._groupOf(oModule) === "SAP S/4HANA" ? "SAP" : "LEGACY";
         },
 
         /* ============================= hash routing ============================ */
@@ -307,6 +340,9 @@ sap.ui.define([
                 processSteps: this._splitProcess(oModule.process),
                 videoLabel: oModule.videoLabel || (sCode + " 시연 영상"),
                 videoUrl: oModule.videoUrl || "",
+                gallery: (oModule.screenshots || []).map(function (o) {
+                    return { url: o.url, title: o.title || "" };
+                }),
                 features: oModule.features || [],
                 techPoints: oModule.techPoints || [],
                 tables: oModule.tables || [],
@@ -370,8 +406,8 @@ sap.ui.define([
             return {
                 code: "", domain: "SAP", eyebrow: "", title: "", subtitle: "",
                 description: "", owner: "", process: "", processSteps: [],
-                videoLabel: "", videoUrl: "", features: [], techPoints: [],
-                tables: [], posts: []
+                videoLabel: "", videoUrl: "", gallery: [], features: [],
+                techPoints: [], tables: [], posts: []
             };
         },
 
@@ -485,8 +521,7 @@ sap.ui.define([
         _syncActiveNav: function (oRoute) {
             var that = this;
             var aStatic = [this.byId("navDashboard"), this.byId("navSkills"), this.byId("navCareer")];
-            var aModuleButtons = this.byId("navSapList").getItems()
-                .concat(this.byId("navLegacyList").getItems());
+            var aModuleButtons = this._getModuleNavButtons();
 
             aStatic.concat(aModuleButtons).forEach(function (oBtn) {
                 if (oBtn) { oBtn.removeStyleClass("pfActive"); }
@@ -509,6 +544,15 @@ sap.ui.define([
 
             /* 접근성: 현재 위치 표시 */
             void that;
+        },
+
+        /** 동적 그룹 트리에서 모듈 nav 버튼 전체 수집 */
+        _getModuleNavButtons: function () {
+            var oNavGroups = this.byId("navGroups");
+            if (!oNavGroups) { return []; }
+            return oNavGroups.findAggregatedObjects(true, function (oObj) {
+                return oObj.isA && oObj.isA("sap.m.Button");
+            });
         },
 
         onToggleDrawer: function () {

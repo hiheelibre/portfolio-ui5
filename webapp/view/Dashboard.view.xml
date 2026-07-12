@@ -51,16 +51,14 @@
                                     <Button id="navDashboard" text="Dashboard"
                                             press=".onNavDashboard" class="pfNavItem pfActive"/>
 
-                                    <Text text="SAP S/4HANA" class="pfNavGroupTitle"
-                                          visible="{= ${vm>/nav/sap}.length > 0 }"/>
-                                    <VBox id="navSapList" items="{vm>/nav/sap}" renderType="Bare">
-                                        <Button text="{vm>label}" press=".onNavModule" class="pfNavSubItem"/>
-                                    </VBox>
-
-                                    <Text text="Legacy Web Systems" class="pfNavGroupTitle"
-                                          visible="{= ${vm>/nav/legacy}.length > 0 }"/>
-                                    <VBox id="navLegacyList" items="{vm>/nav/legacy}" renderType="Bare">
-                                        <Button text="{vm>label}" press=".onNavModule" class="pfNavSubItem"/>
+                                    <!-- 대분류 그룹: modules.json Group/GroupOrder 기준 동적 생성 -->
+                                    <VBox id="navGroups" items="{vm>/nav/groups}" renderType="Bare">
+                                        <VBox renderType="Bare" class="pfNavGroup">
+                                            <Text text="{vm>title}" class="pfNavGroupTitle"/>
+                                            <VBox items="{vm>items}" renderType="Bare">
+                                                <Button text="{vm>label}" press=".onNavModule" class="pfNavSubItem"/>
+                                            </VBox>
+                                        </VBox>
                                     </VBox>
 
                                     <Text text="Information" class="pfNavGroupTitle"/>
@@ -184,10 +182,19 @@
 
                                         <FlexBox renderType="Bare" class="pfBentoGrid" width="100%">
 
-                                            <!-- Visual / Demo -->
+                                            <!-- Visual / Demo : ScreenUrls 갤러리 → 없으면 플레이스홀더 -->
                                             <VBox class="pfBentoCard pfBentoVisual">
                                                 <Text text="{vm>/module/videoLabel}" class="pfCardLabel"/>
-                                                <VBox class="pfVisualPlaceholder" alignItems="Center" justifyContent="Center">
+                                                <Carousel visible="{= ${vm>/module/gallery}.length > 0 }"
+                                                          pages="{vm>/module/gallery}" class="pfGallery">
+                                                    <VBox alignItems="Center" class="pfGallerySlide">
+                                                        <Image src="{path: 'vm>url', formatter: '.fmtMedia'}"
+                                                               densityAware="false" class="pfGalleryImage"/>
+                                                        <Text text="{vm>title}" class="pfGalleryCaption"/>
+                                                    </VBox>
+                                                </Carousel>
+                                                <VBox visible="{= ${vm>/module/gallery}.length === 0 }"
+                                                      class="pfVisualPlaceholder" alignItems="Center" justifyContent="Center">
                                                     <VBox alignItems="Center">
                                                         <Text text="{vm>/module/code}" class="pfVisualMark">
                                                             <customData>
@@ -195,11 +202,11 @@
                                                             </customData>
                                                         </Text>
                                                         <Text text="{vm>/module/videoLabel}" class="pfVisualTitle"/>
-                                                        <Text text="시연 영상 또는 대표 화면이 배치되는 영역입니다." class="pfVisualSub"/>
-                                                        <Button text="영상 보기" press=".onOpenModuleVideo"
-                                                                visible="{= !!${vm>/module/videoUrl} }" class="pfBtnPlay"/>
+                                                        <Text text="Modules DB의 ScreenUrls 이미지 또는 시연 영상이 배치되는 영역입니다." class="pfVisualSub"/>
                                                     </VBox>
                                                 </VBox>
+                                                <Button text="영상 보기" press=".onOpenModuleVideo"
+                                                        visible="{= !!${vm>/module/videoUrl} }" class="pfBtnPlay pfVideoBtn"/>
                                             </VBox>
 
                                             <!-- Info -->

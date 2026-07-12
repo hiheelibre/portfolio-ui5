@@ -1,4 +1,16 @@
 {
-  "generatedAt": "2026-07-12T19:52:31.386Z",
-  "images": []
+  "generatedAt": "2026-07-12T20:38:51.562Z",
+  "images": [
+    {
+      "module": "CO",
+      "postId": "wip-settlement",
+      "fieldName": "bodyImages",
+      "originalHost": "prod-files-secure-apne2.s3.ap-northeast-2.amazonaws.com",
+      "originalPathHash": "682150571ed0",
+      "localPath": "media/notion/CO/wip-settlement/body-001.png",
+      "size": 796219,
+      "contentType": "image/png",
+      "downloadedAt": "2026-07-12T20:38:51.557Z"
+    }
+  ]
 }

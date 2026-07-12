@@ -5,7 +5,12 @@ const ROOT_DIR = process.cwd();
 const MODULES_JSON_PATH = path.join(ROOT_DIR, "webapp", "model", "modules.json");
 const POSTS_ROOT_PATH = path.join(ROOT_DIR, "webapp", "model", "posts");
 
-const VALID_MODULES = ["OV", "FI", "CO", "MM", "SD", "PP", "HR", "RP"];
+/*
+ * 유효 모듈 코드는 고정 배열이 아니라 modules.json에서 동적으로 수집한다.
+ * Notion Modules DB에 새 모듈(WATER, MOTIVE 등)을 추가하면
+ * 소스 수정 없이 게시글 검증도 자동으로 통과한다.
+ */
+let validModuleIds = new Set();
 
 /*
  * Notion 임시 파일 URL 패턴.
@@ -106,8 +111,8 @@ function validatePostFile(filePath) {
 
     if (!isNonEmptyString(post.moduleId)) {
         logError(`${filePath}: moduleId가 없습니다.`);
-    } else if (!VALID_MODULES.includes(post.moduleId)) {
-        logError(`${label}: moduleId가 유효하지 않습니다. 현재값=${post.moduleId}`);
+    } else if (validModuleIds.size > 0 && !validModuleIds.has(post.moduleId)) {
+        logError(`${label}: modules.json에 없는 moduleId입니다. Notion Modules DB에 해당 모듈을 Published로 등록하세요. 현재값=${post.moduleId}`);
     }
 
     if (!isNonEmptyString(post.postId)) {
@@ -189,15 +194,21 @@ function validateModulesJson() {
         return;
     }
 
+    /* 게시글 moduleId 검증 기준: modules.json에 존재하는 코드 전체 */
+    validModuleIds = new Set(Object.keys(modulesData.modules));
+
     Object.keys(modulesData.modules).forEach((moduleId) => {
         const module = modulesData.modules[moduleId];
 
-        if (!VALID_MODULES.includes(moduleId)) {
-            logWarning(`modules.json에 정의되지 않은 moduleId가 있습니다: ${moduleId}`);
-        }
-
         if (!isNonEmptyString(module.title)) {
             logWarning(`${moduleId}: module title이 없습니다.`);
+        }
+
+        /* 모듈 ScreenUrls 이미지 경로 검증 (Notion 임시 URL 잔존/로컬 파일 누락) */
+        if (Array.isArray(module.screenshots)) {
+            module.screenshots.forEach((shot, index) => {
+                validateImagePath(`modules.json ${moduleId}`, `screenshots[${index}]`, shot && shot.url);
+            });
         }
 
         if (!Array.isArray(module.posts)) {
