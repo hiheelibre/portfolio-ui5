@@ -690,6 +690,19 @@ function writePostJson(postJson) {
     console.log("[Notion Sync] 게시글 JSON 생성:", filePath);
 }
 
+function loadModulesData() {
+    if (!fs.existsSync(MODULES_JSON_PATH)) {
+        return { modules: {} };
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(MODULES_JSON_PATH, "utf8"));
+    } catch (e) {
+        console.warn("[Notion Sync][WARN] modules.json 파싱 실패:", e.message);
+        return { modules: {} };
+    }
+}
+
 function updateModulesJson(postListByModule) {
     if (!fs.existsSync(MODULES_JSON_PATH)) {
         throw new Error("modules.json을 찾지 못했습니다: " + MODULES_JSON_PATH);
@@ -701,22 +714,15 @@ function updateModulesJson(postListByModule) {
         modulesData.modules = {};
     }
 
+    /* 모든 모듈의 posts를 이번 sync 결과로 재설정 (잔여 목록 제거) */
+    Object.keys(modulesData.modules).forEach((moduleId) => {
+        modulesData.modules[moduleId].posts = [];
+    });
+
     Object.keys(postListByModule).forEach((moduleId) => {
         if (!modulesData.modules[moduleId]) {
-            modulesData.modules[moduleId] = {
-                code: moduleId,
-                title: moduleId,
-                subtitle: "",
-                eyebrow: "ERP MODULE",
-                owner: "",
-                process: "",
-                description: "",
-                videoLabel: "",
-                videoUrl: "",
-                features: [],
-                techPoints: [],
-                tables: []
-            };
+            /* main에서 이미 건너뛰므로 도달하지 않지만 방어적으로 무시 */
+            return;
         }
 
         modulesData.modules[moduleId].posts = postListByModule[moduleId]
@@ -753,6 +759,18 @@ async function main() {
 
     console.log("[Notion Sync] Published 게시글 조회 시작");
 
+    /*
+     * 단일 소스 원칙: Modules DB(→ modules.json)에 등록된 모듈의 게시글만 생성.
+     * notion:modules가 먼저 실행되므로 modules.json은 Notion 기준 최신 상태다.
+     */
+    const registeredModules = new Set(
+        Object.keys((loadModulesData() || {}).modules || {})
+    );
+
+    /* 이전 sync의 잔여 게시글 JSON 제거 (미등록 모듈 잔재가 검증을 깨지 않도록) */
+    fs.rmSync(POSTS_ROOT_PATH, { recursive: true, force: true });
+    fs.mkdirSync(POSTS_ROOT_PATH, { recursive: true });
+
     const pages = await queryPublishedPages();
 
     console.log("[Notion Sync] Published 게시글 수:", pages.length);
@@ -768,6 +786,14 @@ async function main() {
 
         if (!moduleId || !postId) {
             console.warn("[Notion Sync] Module 또는 PostId가 없어 건너뜀:", page.id);
+            continue;
+        }
+
+        if (!registeredModules.has(moduleId)) {
+            console.warn(
+                `[Notion Sync][WARN] ${moduleId}/${postId}: Modules DB에 등록되지 않은 모듈이라 건너뜁니다. ` +
+                "표출하려면 Notion Modules DB에 해당 모듈을 Published로 등록하세요."
+            );
             continue;
         }
 

@@ -449,13 +449,12 @@ async function main() {
     }
 
     /*
-     * Notion Modules DB에 아직 없는 모듈은 기존 modules.json에서 보존한다.
-     * 즉, 한 번에 다 안 옮겨도 안전하다.
+     * 단일 소스 원칙: Notion Modules DB에서 Published인 모듈만 사이트에 표출한다.
+     * (과거 씨드/이관용 modules.json 항목은 더 이상 보존하지 않음)
      */
     Object.keys(existingData.modules).forEach((code) => {
         if (!nextModules[code]) {
-            nextModules[code] = existingData.modules[code];
-            console.log("[Notion Modules Sync] 기존 모듈 보존:", code);
+            console.log("[Notion Modules Sync] Notion에 없는 모듈 제거:", code);
         }
     });
 
