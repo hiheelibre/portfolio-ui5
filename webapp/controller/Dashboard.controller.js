@@ -2,16 +2,15 @@
  * Dashboard.controller.js — Enterprise Developer Portfolio
  * ---------------------------------------------------------------
  * 데이터 원칙 (빌드 타임 정적 콘텐츠):
- *  - 초기: model/modules.json → 사이드바 / 대시보드 카드 / 순서 / 분류
- *  - 상세: model/posts/{Module}/{PostId}.json (Controller 캐시)
+ *  - 프로젝트: model/modules.json → 사이드바 / Selected Projects / 순서 / 분류
+ *              model/posts/{Module}/{PostId}.json (Controller 캐시)
+ *  - 자기소개: model/profile.json (Hero/About/Story/Strengths/How I Work/Closing)
+ *              로딩 실패 시 빈 골격으로 폴백 — 앱 전체가 깨지지 않음
  *  - 이미지: JSON에 기록된 로컬 상대경로(media/notion/...)만 사용
  *  - 브라우저에서 Notion API / API Key / Build Hook 절대 사용 금지
  *
  * 라우팅 (hash):
  *  #dashboard | #module/{Code} | #post/{Module}/{PostId} | #skills | #career
- *  - 뒤로가기/앞으로가기: hashchange 리스너로 지원
- *  - 새로고침: 초기 데이터 로딩 후 현재 hash 복원
- *  - 잘못된 경로: 오류 안내 후 Dashboard로 이동
  */
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
@@ -43,10 +42,13 @@ sap.ui.define([
             });
             this.getView().setModel(this._oVm, "vm");
 
-            /* 사이트 공통 고정 콘텐츠 (Hero/Bridge/Skills/Career) */
+            /* 사이트 공통 콘텐츠 (브랜드/Skills/Career 페이지) */
             var oSiteModel = new JSONModel();
             oSiteModel.loadData(APP_BASE + "/config/site.json");
             this.getView().setModel(oSiteModel, "site");
+
+            /* 자기소개 콘텐츠 (Dashboard 전용) — 실패해도 앱은 정상 동작 */
+            this._loadProfile();
 
             this._loadModules();
 
@@ -58,7 +60,6 @@ sap.ui.define([
         },
 
         onAfterRendering: function () {
-            /* Drawer 오버레이 클릭 → 닫기 (1회만 부착) */
             var oOverlay = this.byId("drawerOverlay");
             if (oOverlay && !this._bOverlayBound) {
                 this._bOverlayBound = true;
@@ -67,6 +68,25 @@ sap.ui.define([
         },
 
         /* ============================ initial loading =========================== */
+
+        /** profile.json — 자기소개/철학/스토리/강점/작업방식 (하드코딩 금지) */
+        _loadProfile: function () {
+            var oProfileModel = new JSONModel(this._emptyProfile());
+            this.getView().setModel(oProfileModel, "profile");
+
+            fetch(APP_BASE + "/model/profile.json")
+                .then(function (oRes) {
+                    if (!oRes.ok) { throw new Error("HTTP " + oRes.status); }
+                    return oRes.json();
+                })
+                .then(function (oData) {
+                    oProfileModel.setData(oData);
+                })
+                .catch(function (oError) {
+                    /* 빈 골격 유지 → Dashboard 고정 문구만 비고 앱은 정상 */
+                    console.warn("[profile] profile.json 로딩 실패:", oError.message);
+                });
+        },
 
         /** modules.json — 앱 시작 시 1회 로딩 */
         _loadModules: function () {
@@ -95,7 +115,6 @@ sap.ui.define([
          * 사이드바: modules.json의 Group/GroupOrder 기준 동적 그룹화.
          * - Published 모듈만 modules.json에 존재하므로 그대로 표시
          * - 대분류: GroupOrder 오름차순 / 그룹 내부: Order 오름차순
-         * - 새 Group·모듈을 Notion에 추가하면 소스 수정 없이 자동 노출
          * - Group 없는 과거 데이터는 "SAP S/4HANA"로 폴백 (하위 호환)
          */
         _buildNav: function () {
@@ -113,7 +132,6 @@ sap.ui.define([
                 if (!oGroupMap[sKey]) {
                     oGroupMap[sKey] = { title: sGroup, order: nGroupOrder, items: [] };
                 }
-                /* 같은 그룹에서 가장 작은 GroupOrder를 대표값으로 사용 */
                 oGroupMap[sKey].order = Math.min(oGroupMap[sKey].order, nGroupOrder);
 
                 oGroupMap[sKey].items.push({
@@ -131,34 +149,36 @@ sap.ui.define([
             this._oVm.setProperty("/nav/groups", aGroups);
         },
 
-        /** 대시보드 카드: 모든 모듈의 Published 게시글(modules.json posts) 평탄화 */
+        /**
+         * Selected Projects 카드: modules.json의 모듈(시스템) 단위로 구성.
+         * - SAP 그룹 먼저(GroupOrder), 그룹 내부는 Order 순
+         * - 카드 클릭 → #module/{Code} 상세 페이지
+         */
         _buildCards: function () {
             var that = this;
             var aCards = [];
 
-            this._sortedModuleCodes().forEach(function (sCode) {
-                var oModule = that._modules[sCode];
-                var aPosts = Array.isArray(oModule.posts) ? oModule.posts.slice() : [];
-
-                aPosts.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-
-                aPosts.forEach(function (oPost) {
-                    aCards.push({
-                        moduleCode: sCode,
-                        moduleLabel: sCode,
-                        domain: that._domainOf(oModule),
-                        metaLabel: oModule.title || sCode,
-                        postId: oPost.id,
-                        title: oPost.title,
-                        summary: oPost.summary,
-                        tags: that._toNameObjects(oPost.tags),
-                        index: ""
-                    });
-                });
+            var aModules = this._sortedModuleCodes().map(function (sCode) {
+                return { code: sCode, module: that._modules[sCode] };
             });
 
-            aCards.forEach(function (oCard, i) {
-                oCard.index = (i + 1 < 10 ? "0" : "") + (i + 1);
+            aModules.sort(function (a, b) {
+                var nGroup = that._groupOrderOf(a.module) - that._groupOrderOf(b.module);
+                if (nGroup !== 0) { return nGroup; }
+                return (a.module.order || 0) - (b.module.order || 0);
+            });
+
+            aModules.forEach(function (oEntry, i) {
+                var oModule = oEntry.module;
+                aCards.push({
+                    code: oEntry.code,
+                    domain: that._domainOf(oModule),
+                    groupLabel: that._groupOf(oModule),
+                    title: oModule.displayName || oModule.title || oEntry.code,
+                    summary: oModule.description || oModule.subtitle || "",
+                    metaLabel: oModule.subtitle || oModule.process || "",
+                    index: (i + 1 < 10 ? "0" : "") + (i + 1)
+                });
             });
 
             this._oVm.setProperty("/cards", aCards);
@@ -166,7 +186,6 @@ sap.ui.define([
 
         _sortedModuleCodes: function () {
             var that = this;
-            /* JSON 삽입 순서(동기화 Order 정렬 결과) 우선, order 필드가 있으면 재정렬 */
             return Object.keys(this._modules).sort(function (a, b) {
                 var nA = that._modules[a].order || 0;
                 var nB = that._modules[b].order || 0;
@@ -326,7 +345,7 @@ sap.ui.define([
         },
 
         /* ============================ normalization ============================ */
-        /* 실제 생성 JSON 필드명 기준 (sync-notion-posts.js 결과 구조 그대로) */
+        /* 실제 생성 JSON 필드명 기준 (sync 스크립트 결과 구조 그대로) */
 
         _normalizeModule: function (sCode, oModule) {
             var aPosts = (Array.isArray(oModule.posts) ? oModule.posts.slice() : [])
@@ -425,6 +444,28 @@ sap.ui.define([
             };
         },
 
+        /** profile.json 로딩 실패 시에도 바인딩이 깨지지 않는 빈 골격 */
+        _emptyProfile: function () {
+            return {
+                hero: { eyebrow: "", title: "", description: "", philosophy: "",
+                        primaryAction: "프로젝트 보기", secondaryAction: "경력 확인" },
+                identity: { label: "", role: "", rows: [], tags: [] },
+                about: { sectionTitle: "About Me", sectionDesc: "", heading: "",
+                         paragraphs: [], quote: "", directionTitle: "", directions: [] },
+                journey: [],
+                strengths: [],
+                work: { sectionTitle: "How I Work", sectionDesc: "", title: "", desc: "" },
+                workProcess: [],
+                sections: {
+                    story: { title: "Career Story", desc: "" },
+                    strengths: { title: "Core Strengths", desc: "" },
+                    projects: { title: "Selected Projects", desc: "" }
+                },
+                closing: { title: "", desc: "", skillsLabel: "Technical Skills",
+                           careerLabel: "Career & Contact" }
+            };
+        },
+
         _toNameObjects: function (aValues) {
             return (aValues || []).map(function (vValue) {
                 return typeof vValue === "string" ? { name: vValue } : { name: vValue.name || vValue.text || "" };
@@ -471,11 +512,10 @@ sap.ui.define([
             if (oCtx) { this._setHash("module/" + oCtx.getProperty("code")); }
         },
 
+        /** Selected Projects 카드 → 모듈 상세 (#module/{Code}) */
         onCardPress: function (oEvent) {
             var oCtx = oEvent.getParameter("listItem").getBindingContext("vm");
-            if (oCtx) {
-                this._setHash("post/" + oCtx.getProperty("moduleCode") + "/" + oCtx.getProperty("postId"));
-            }
+            if (oCtx) { this._setHash("module/" + oCtx.getProperty("code")); }
         },
 
         onModulePostPress: function (oEvent) {
@@ -485,10 +525,16 @@ sap.ui.define([
             }
         },
 
-        onHeroAction: function (oEvent) {
-            var oCtx = oEvent.getSource().getBindingContext("site");
-            if (oCtx) { this._setHash(oCtx.getProperty("hash")); }
+        /** Hero CTA: 프로젝트 보기 → Selected Projects 영역으로 스크롤 */
+        onHeroProjects: function () {
+            var oSection = this.byId("projectSection");
+            if (oSection && oSection.getDomRef()) {
+                oSection.getDomRef().scrollIntoView({ behavior: "smooth", block: "start" });
+            }
         },
+
+        /** Hero CTA: 경력 확인 → Career & Contact 페이지 */
+        onHeroCareer: function () { this._setHash("career"); },
 
         onBackToDashboard: function () { this._setHash("dashboard"); },
 
@@ -524,7 +570,6 @@ sap.ui.define([
         /* ======================== sidebar active / drawer ====================== */
 
         _syncActiveNav: function (oRoute) {
-            var that = this;
             var aStatic = [this.byId("navDashboard"), this.byId("navSkills"), this.byId("navCareer")];
             var aModuleButtons = this._getModuleNavButtons();
 
@@ -546,9 +591,6 @@ sap.ui.define([
                 })[0];
                 if (oMatch) { oMatch.addStyleClass("pfActive"); }
             }
-
-            /* 접근성: 현재 위치 표시 */
-            void that;
         },
 
         /** 동적 그룹 트리에서 모듈 nav 버튼 전체 수집 */
@@ -574,7 +616,7 @@ sap.ui.define([
 
         /* ============================= motion system =========================== */
 
-        /** 페이지 전환 시 fadeInUp 재생 (목업 .page-view 애니메이션) */
+        /** 페이지 전환 시 fadeInUp 재생 */
         onAfterNavigate: function (oEvent) {
             var oToPage = oEvent.getParameter("to");
             var oInner = oToPage.getContent && oToPage.getContent()[0];
@@ -587,11 +629,11 @@ sap.ui.define([
             });
         },
 
-        /** 첫 진입: Hero → Bridge → Cards 스태거 */
+        /** 첫 진입: Hero → About → Story 스태거 */
         _playStaggeredEntrance: function () {
             var that = this;
             window.requestAnimationFrame(function () {
-                ["heroBox", "bridgeSection", "projectSection"].forEach(function (sId) {
+                ["heroBox", "aboutSection", "storySection"].forEach(function (sId) {
                     var oSection = that.byId(sId);
                     if (oSection) { oSection.addStyleClass("pfEnterPlay"); }
                 });

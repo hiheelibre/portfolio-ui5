@@ -88,65 +88,6 @@
       "tables": [],
       "posts": []
     },
-    "MM": {
-      "code": "MM",
-      "title": "Materials Management (1)",
-      "domain": "SAP",
-      "displayName": "",
-      "order": 30,
-      "group": "SAP S/4 HANA",
-      "groupOrder": 10,
-      "subtitle": "구매 및 자재관리",
-      "eyebrow": "PROCUREMENT MODULE",
-      "owner": "MM 담당자",
-      "process": "PR → PO → GR → IV",
-      "description": "구매요청부터 송장검증까지",
-      "videoLabel": "MM 시연 영상",
-      "videoUrl": "",
-      "screenshots": [],
-      "features": [
-        {
-          "text": "구매요청 관리"
-        },
-        {
-          "text": "구매오더 관리"
-        },
-        {
-          "text": "입고 처리"
-        }
-      ],
-      "techPoints": [
-        {
-          "text": "상태값 기반 제어"
-        },
-        {
-          "text": "구매정보레코드 참조"
-        }
-      ],
-      "tables": [
-        {
-          "text": "ZTC1MM0025"
-        },
-        {
-          "text": "ZTC1MM0026"
-        }
-      ],
-      "posts": [
-        {
-          "id": "pr-management",
-          "title": "구매요청 관리!!!",
-          "summary": "구매요청 흐름을 구현한 기능입니다.",
-          "owner": "김MM",
-          "thumbnail": "",
-          "tags": [
-            "PR",
-            "ALV",
-            "상태관리"
-          ],
-          "order": 10
-        }
-      ]
-    },
     "CO": {
       "code": "CO",
       "title": "Controlling",
