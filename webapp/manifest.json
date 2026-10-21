@@ -3,8 +3,8 @@
     "sap.app": {
         "id": "portfolio.dashboard",
         "type": "application",
-        "title": "Enterprise Developer Portfolio",
-        "description": "Notion 빌드 타임 동기화 기반 Enterprise Developer Portfolio",
+        "title": "한지희 포트폴리오",
+        "description": "SAP CO 결산 개발과 공공 시스템 5년, content 폴더 md 기반 포트폴리오",
         "applicationVersion": {
             "version": "1.0.0"
         },
@@ -24,9 +24,9 @@
     },
     "sap.ui5": {
         "rootView": {
-            "viewName": "portfolio.dashboard.view.Dashboard",
+            "viewName": "portfolio.dashboard.view.Main",
             "type": "XML",
-            "id": "dashboardView",
+            "id": "mainView",
             "async": true
         },
         "dependencies": {
@@ -44,6 +44,9 @@
             "css": [
                 {
                     "uri": "css/style.css"
+                },
+                {
+                    "uri": "css/main.css"
                 }
             ]
         }

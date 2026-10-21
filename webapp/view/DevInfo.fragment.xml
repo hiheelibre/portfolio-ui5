@@ -1,0 +1,40 @@
+<!--
+  DevInfo.fragment.xml — 0.2: 홈 "기술과 자격" 아래 "구현 정보 보기" 레이어 팝업 (이 포트폴리오 자체의 SAPUI5 구현 소개)
+  바인딩: c>/home/devInfo (content/home.md devInfo). 공공 기록 팝업(PubRecord)과는 다른 Dialog 인스턴스이며 스타일 클래스만 함께 씀
+  열기와 닫기: Main.controller.js onDevInfoOpen, onDevInfoClose (주소는 바꾸지 않음)
+-->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="devPop" showHeader="false" contentWidth="912px" verticalScrolling="true" horizontalScrolling="false"
+            draggable="false" resizable="false" ariaLabelledBy="devPopTitle" afterClose=".onDevInfoAfterClose" class="pfPop pfDevPop">
+        <content>
+            <VBox class="pfPopHead">
+                <HBox justifyContent="SpaceBetween" alignItems="Start" class="pfPopHeadRow">
+                    <Text text="{c>/home/devInfo/eyebrow}" class="pfDevEyebrow"/>
+                    <Button icon="sap-icon://decline" type="Transparent" tooltip="닫기" press=".onDevInfoClose" class="pfPopX"/>
+                </HBox>
+                <Title id="devPopTitle" text="{c>/home/devInfo/popTitle}" level="H2" wrapping="true" class="pfPopTitle"/>
+                <Text text="{c>/home/devInfo/popSub}" wrapping="true" class="pfPopMetaText"/>
+            </VBox>
+            <VBox renderType="Bare" class="pfPopBody">
+                <VBox renderType="Bare" class="pfPopSec">
+                    <Title text="{c>/home/devInfo/purposeTitle}" level="H3" wrapping="true" class="pfPopSecK"/>
+                    <Text text="{c>/home/devInfo/purpose}" wrapping="true" class="pfSecPara"/>
+                </VBox>
+                <VBox renderType="Bare" class="pfPopSec">
+                    <Title text="{c>/home/devInfo/techTitle}" level="H3" wrapping="true" class="pfPopSecK"/>
+                    <Text text="{c>/home/devInfo/techHint}" visible="{= !!${c>/home/devInfo/techHint} }" class="pfPopMetaText"/>
+                    <!-- 0.2: 기술 이름만 나열, 설명은 마우스를 올리면 칩 묶음 아래 말풍선으로 (data-tip) -->
+                    <HBox items="{c>/home/devInfo/tech}" wrap="Wrap" renderType="Bare" class="pfDevChips">
+                        <Text text="{c>k}" class="pfDevChip">
+                            <customData><core:CustomData key="tip" value="{c>v}" writeToDom="true"/></customData>
+                        </Text>
+                    </HBox>
+                    <Text text="{c>/home/devInfo/techNote}" visible="{= !!${c>/home/devInfo/techNote} }" wrapping="true" class="pfFoot"/>
+                </VBox>
+            </VBox>
+        </content>
+        <endButton>
+            <Button text="닫기" press=".onDevInfoClose" class="pfPopClose"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

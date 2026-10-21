@@ -7,16 +7,17 @@
 
 :root {
     --pf-bg: #ffffff;
-    --pf-surface-soft: #f7f8fa;
-    --pf-surface-deep: #eff2f5;
+    --pf-surface-soft: #f6f8fc;
+    --pf-surface-deep: #edf1f7;
     --pf-sidebar: #2c2c38;
     --pf-sidebar-hover: #38384a;
     --pf-text: #1a2128;
     --pf-text-sub: #4c5967;
-    --pf-text-muted: #788491;
+    --pf-text-muted: #5f6b78;     /* 2026-10-21 UX 개선 28: #788491(대비 약 3.8:1) → #5f6b78(약 5.4:1), WCAG AA */
     --pf-line: #e2e5e9;
-    --pf-accent: #99c421;
-    --pf-accent-soft: #eff6dc;
+    --pf-accent: #4f74b8;         /* K 미스트 네이비 (이전 라임 #99c421) */
+    --pf-accent-soft: #edf1f9;
+    --pf-accent-light: #a9bde6;   /* 어두운 사이드바 위 글자용 */
     --pf-sap: #0a6ed1;
     --pf-sap-soft: #edf5ff;
     --pf-legacy: #7c5cff;
@@ -84,7 +85,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
 /* ─── 2. Sidebar ─── */
 .pfSidebar {
-    width: 282px;
+    width: 262px; /* 0.2: 282px의 80%(226px)에서 10%, 다시 5% 늘림 */
     height: 100vh;
     background: var(--pf-sidebar);
     padding: 30px 22px 24px;
@@ -102,7 +103,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 .pfLogoText.sapMText, .pfLogoAccent.sapMText {
     font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.4px;
 }
-.pfLogoAccent.sapMText { color: var(--pf-accent); }
+.pfLogoAccent.sapMText { color: var(--pf-accent-light); }
 .pfLogoCaption.sapMText { margin-top: 7px; font-size: 11px; color: #9ca5ae; letter-spacing: 0.9px; }
 
 .pfNavScroll { flex: 1 1 auto; }
@@ -135,8 +136,8 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
 .pfNavItem.pfActive.sapMBtn .sapMBtnInner { background: var(--pf-accent) !important; }
 .pfNavItem.pfActive.sapMBtn bdi { color: #ffffff; font-weight: 800; }
-.pfNavSubItem.pfActive.sapMBtn .sapMBtnInner { background: rgba(153, 196, 33, 0.10) !important; }
-.pfNavSubItem.pfActive.sapMBtn bdi { color: var(--pf-accent); font-weight: 800; }
+.pfNavSubItem.pfActive.sapMBtn .sapMBtnInner { background: rgba(79, 116, 184, 0.10) !important; }
+.pfNavSubItem.pfActive.sapMBtn bdi { color: var(--pf-accent-light); font-weight: 800; }
 
 .pfNavItem.sapMBtn:focus-visible .sapMBtnInner,
 .pfNavSubItem.sapMBtn:focus-visible .sapMBtnInner {
@@ -305,13 +306,13 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
     border: 1px solid var(--pf-line);
     border-radius: 12px;
     background:
-        radial-gradient(circle at 91% 11%, rgba(153, 196, 33, 0.16) 0 105px, transparent 106px),
-        linear-gradient(135deg, #f8f9fb 0%, #ffffff 62%, #f1f7e3 100%);
+        radial-gradient(circle at 91% 11%, rgba(79, 116, 184, 0.16) 0 105px, transparent 106px),
+        linear-gradient(135deg, #f8f9fb 0%, #ffffff 62%, #edf1f9 100%);
 }
 .pfHero::after {
     content: '';
     position: absolute; width: 230px; height: 230px; right: -95px; bottom: -110px;
-    border: 42px solid rgba(153, 196, 33, 0.08); border-radius: 50%;
+    border: 42px solid rgba(79, 116, 184, 0.08); border-radius: 50%;
 }
 .pfHeroCopy, .pfIdentityCard { position: relative; z-index: 1; }
 
@@ -653,7 +654,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
 /* ─── 16. 반응형 ─── */
 @media (max-width: 1100px) {
-    .pfSidebar { width: 240px; }
+    .pfSidebar { width: 252px; } /* 0.2: 메뉴 이름(SAP S/4HANA 통합 ERP 구축)이 두 줄로 넘어가지 않는 폭 */
     .pfPageInner { padding: 36px 30px 70px; }
     .pfHero { grid-template-columns: 1fr; gap: 30px; }
     .pfIdentityCard { max-width: none; }

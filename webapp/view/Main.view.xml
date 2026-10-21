@@ -1,0 +1,1383 @@
+<!--
+  Main.view.xml — 한지희 포트폴리오 (개편판, PHASE 6)
+  - 데이터: model/content/*.json (content 폴더 md를 빌드할 때 변환, 모델 이름 "c")
+           화면용 가공 값은 "vm" 모델
+  - 라우팅: #home  #career  #sap  #sap/{섹션: overview, process, e2e, co, programs, shared, outcomes}  #sap/{카드}  #public  #public/{카드}
+           옛 주소(#dashboard, #module/.., #post/.., #skills)는 새 주소로 넘김
+  - 이전 화면: Dashboard.view.xml (지우지 않고 보관, manifest rootView만 바꿈)
+-->
+<mvc:View
+    controllerName="portfolio.dashboard.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:portfolio="portfolio.dashboard.control"
+    displayBlock="true"
+    height="100%">
+
+    <Shell appWidthLimited="false" class="pfShellWrap">
+        <App id="appRoot">
+            <pages>
+                <Page id="rootPage" showHeader="false" enableScrolling="false"
+                      backgroundDesign="Solid" class="pfRootPage">
+                    <content>
+
+                        <!-- 모바일 상단 헤더 -->
+                        <HBox class="pfMobileHeader" alignItems="Center" justifyContent="SpaceBetween">
+                            <HBox alignItems="Center" class="pfMobileLogo">
+                                <Text text="{c>/site/brand/lead}&#160;" class="pfLogoText"/>
+                                <Text text="{c>/site/brand/accent}" class="pfLogoAccent"/>
+                            </HBox>
+                            <HBox alignItems="Center" class="pfMobileActions">
+                                <!-- 2026-10-21 UX 개선 29: 뜻이 모호한 아이콘 두 개(이메일, 배지) 대신 글자 버튼 "연락" 하나 (이메일 보내기, 주소 복사, Credly) -->
+                                <Button text="연락" press=".onContactMenu" class="pfMobileContact" ariaHasPopup="Menu"/>
+                                <Button icon="sap-icon://menu2" press=".onToggleDrawer"
+                                        class="pfHamburger" tooltip="메뉴 열기"/>
+                            </HBox>
+                        </HBox>
+                        <!-- 2026-10-21 UX 개선 29: 모바일 상단 섹션 칩 바 (현재 페이지의 섹션으로 바로 이동, 스크롤 위치에 따라 강조) -->
+                        <HBox id="mobileChips" items="{vm>/mobileChips}" renderType="Bare" visible="{= ${vm>/mobileChips}.length > 0 }" class="pfMobileChips">
+                            <Button text="{vm>label}" press=".onNav" class="pfMobileChip">
+                                <customData>
+                                    <core:CustomData key="to" value="{vm>to}"/>
+                                    <core:CustomData key="on" value="{= ${vm>active} ? 'y' : 'n' }" writeToDom="true"/>
+                                </customData>
+                            </Button>
+                        </HBox>
+                        <VBox id="drawerOverlay" class="pfDrawerOverlay"/>
+
+                        <FlexBox renderType="Bare" class="pfShell" height="100%" width="100%">
+
+                            <!-- ═══ 사이드바: 위 메뉴, 아래 간략 프로필 ═══ -->
+                            <VBox id="sidebar" class="pfSidebar">
+                                <VBox class="pfLogoArea">
+                                    <HBox>
+                                        <Text text="{c>/site/brand/lead}&#160;" class="pfLogoText"/>
+                                        <Text text="{c>/site/brand/accent}" class="pfLogoAccent"/>
+                                    </HBox>
+                                    <Text text="{c>/site/brand/caption}" class="pfLogoCaption"/>
+                                </VBox>
+
+                                <VBox class="pfNavScroll">
+                                    <Button id="navHome" text="{vm>/nav/home}" press=".onNav"
+                                            class="pfNavItem pfActive">
+                                        <customData><core:CustomData key="to" value="home"/></customData>
+                                    </Button>
+                                    <!-- 0.2: 홈 하위 메뉴 (주요 구현 사례, 이력, 기술과 자격) -->
+                                    <Button id="navHighlights" text="{vm>/nav/highlights}" press=".onNav" class="pfNavSubItem">
+                                        <customData><core:CustomData key="to" value="주요-구현-사례"/></customData>
+                                    </Button>
+                                    <Button id="navCareer" text="{vm>/nav/career}" press=".onNav" class="pfNavSubItem">
+                                        <customData><core:CustomData key="to" value="이력"/></customData>
+                                    </Button>
+                                    <Button id="navSkills" text="{vm>/nav/skills}" press=".onNav" class="pfNavSubItem">
+                                        <customData><core:CustomData key="to" value="기술과-자격"/></customData>
+                                    </Button>
+
+                                    <Text text="{vm>/nav/group}" class="pfNavGroupTitle"/>
+                                    <VBox id="navSapBlock" class="pfNavBlock">
+                                        <Button id="navSap" text="{vm>/nav/sap}" press=".onNav" class="pfNavItem pfNavTwoLine">
+                                            <customData><core:CustomData key="to" value="sap"/></customData>
+                                        </Button>
+                                        <Text id="navSapSub" text="{vm>/nav/sapSub}" class="pfNavSubText"/>
+                                    </VBox>
+                                    <!-- v0.8: SAP 프로젝트 하위 메뉴 5개 (SAP 화면과 SAP 상세에서 펼침) -->
+                                    <VBox id="navSapChildren" visible="{vm>/nav/sapOpen}" class="pfNavChildren">
+                                        <Button id="navSapOverview" text="{vm>/nav/overview}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="sap/overview"/></customData>
+                                        </Button>
+                                        <Button id="navSapProcess" text="{vm>/nav/process}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="sap/process"/></customData>
+                                        </Button>
+                                        <Button id="navSapPrograms" text="{vm>/nav/programs}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="sap/programs"/></customData>
+                                        </Button>
+                                        <Button id="navSapOutcomes" text="{vm>/nav/outcomes}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="sap/outcomes"/></customData>
+                                        </Button>
+                                    </VBox>
+                                    <VBox id="navPublicBlock" class="pfNavBlock">
+                                        <Button id="navPublic" text="{vm>/nav/public}" press=".onNav" class="pfNavItem pfNavTwoLine">
+                                            <customData><core:CustomData key="to" value="public"/></customData>
+                                        </Button>
+                                        <Text id="navPublicSub" text="{vm>/nav/publicSub}" class="pfNavSubText"/>
+                                    </VBox>
+                                    <!-- 결정 P-I: 공공 프로젝트 하위 메뉴 5개 (공공 화면과 공공 상세에서 펼침) -->
+                                    <VBox id="navPubChildren" visible="{vm>/nav/pubOpen}" class="pfNavChildren">
+                                        <Button id="navPubOverview" text="{vm>/nav/pub_overview}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="public/overview"/></customData>
+                                        </Button>
+                                        <Button id="navPubProcess" text="{vm>/nav/pub_process}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="public/process"/></customData>
+                                        </Button>
+                                        <Button id="navPubCases" text="{vm>/nav/pub_cases}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="public/cases"/></customData>
+                                        </Button>
+                                        <Button id="navPubOperations" text="{vm>/nav/pub_operations}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="public/operations"/></customData>
+                                        </Button>
+                                        <Button id="navPubOutcomes" text="{vm>/nav/pub_outcomes}" press=".onNav" class="pfNavSubItem">
+                                            <customData><core:CustomData key="to" value="public/outcomes"/></customData>
+                                        </Button>
+                                    </VBox>
+                                </VBox>
+
+                                <!-- 간략 프로필: 이메일 복사, Credly 배지 확인 (0.2: 이름과 직무 줄은 상단 로고와 겹쳐 삭제, site.md profile 값은 남겨 둠) -->
+                                <VBox class="pfMini">
+                                    <Button text="이메일 복사" icon="sap-icon://email" press=".onCopyEmail" width="100%" class="pfMiniBtn"/>
+                                    <Button text="Credly 배지 확인" icon="sap-icon://badge" press=".onOpenCredly" width="100%" class="pfMiniBtn"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- ═══ 메인 ═══ -->
+                            <NavContainer id="navCon" class="pfMain" height="100%">
+
+                                <!-- ── PF-01 홈 ── -->
+                                <ScrollContainer id="pageHome" height="100%" width="100%" vertical="true" horizontal="false">
+                                    <VBox class="pfPageInner">
+                                        <VBox class="pfContainer">
+
+                                            <!-- ① 히어로 (기존 구조) -->
+                                            <FlexBox id="secHero" renderType="Bare" class="pfHero">
+                                                <VBox class="pfHeroCopy">
+                                                    <Text text="{c>/home/hero/eyebrow}" class="pfEyebrow"/>
+                                                    <!-- 헤드라인 5종 순환: 01 바로 표시, 02~05 타이핑 (Main.controller.js _startHero) -->
+                                                    <Text text="{vm>/hero/label}" class="pfHeroLabel"/>
+                                                    <VBox id="heroHeadWrap" class="pfHeroHeadWrap">
+                                                        <FormattedText id="heroHead" htmlText="{vm>/hero/html}" class="pfHeroTitle pfHeroHead"/>
+                                                    </VBox>
+                                                    <VBox items="{c>/home/hero/points}" renderType="Bare" class="pfHeroPoints">
+                                                        <FormattedText htmlText="{path: 'c>', formatter: '.fmtBold'}" class="pfHeroPoint"/>
+                                                    </VBox>
+                                                    <HBox class="pfHeroActions" wrap="Wrap">
+                                                        <Button text="{c>/home/hero/primary/label}" press=".onGoPath" class="pfBtn pfBtnBlue">
+                                                            <customData><core:CustomData key="to" value="{c>/home/hero/primary/to}"/></customData>
+                                                        </Button>
+                                                        <!-- 2026-10-21 UX 개선 6: 보조 버튼은 테두리형으로 위계 구분 -->
+                                                        <Button text="{c>/home/hero/secondary/label}" press=".onGoPath" class="pfBtn pfBtnOutline">
+                                                            <customData><core:CustomData key="to" value="{c>/home/hero/secondary/to}"/></customData>
+                                                        </Button>
+                                                    </HBox>
+                                                </VBox>
+
+                                                <!-- 프로필 카드: 오른쪽 (사진, 이름, 한 줄, 맨 아래 기술 태그) -->
+                                                <VBox class="pfIdentityCard pfIdHead">
+                                                    <Image src="{path: 'c>/home/photo/file', formatter: '.fmtPhoto'}"
+                                                           visible="{= !!${c>/home/photo/file} }" alt="{c>/home/photo/alt}"
+                                                           width="100%" densityAware="false" class="pfPhoto pfPhotoLg"/>
+                                                    <VBox visible="{= !${c>/home/photo/file} }" class="pfPhotoEmpty" alignItems="Center" justifyContent="Center">
+                                                        <Text text="프로필 사진" class="pfPhotoEmptyText"/>
+                                                    </VBox>
+                                                    <Title text="{c>/home/idcard/name}" level="H2" class="pfIdName"/>
+                                                    <!-- PC: 슬래시마다 줄바꿈 / 태블릿, 모바일: 한 줄 -->
+                                                    <Text text="{path: 'c>/home/idcard/role', formatter: '.fmtSlashLines'}" wrapping="true" class="pfIdRole pfIdRoleLines"/>
+                                                    <Text text="{c>/home/idcard/role}" wrapping="true" class="pfIdRole pfIdRoleOne"/>
+                                                    <HBox items="{c>/home/idcard/tags}" wrap="Wrap" alignItems="Center" class="pfIdTags">
+                                                        <Text text="{c>}" class="pfTag"/>
+                                                    </HBox>
+                                                </VBox>
+                                                <!-- 0.2: 중간 3열 요약(프로필 항목) 삭제 -->
+                                                <!-- 한눈에 보기: 히어로 패널 안 맨 아래 -->
+                                                <!-- 한눈에 보기: 2x2 패널 (항목명, 큰 문구, 보조 문구, 자세히) -->
+                                                <VBox id="secGlance" class="pfGlancePanel pfGlanceInHero">
+                                                    <HBox class="pfGlanceHead" justifyContent="SpaceBetween" alignItems="Center" width="100%" wrap="Wrap"
+                                                          visible="{= !!${c>/home/glance/title} || !!${c>/home/glance/note} }">
+                                                        <Title text="{c>/home/glance/title}" level="H2" class="pfSectionTitle"/>
+                                                        <Text text="{c>/home/glance/note}" visible="{= !!${c>/home/glance/note} }" class="pfGlanceNote"/>
+                                                    </HBox>
+                                                    <FlexBox items="{c>/home/glance/items}" renderType="Bare" class="pfGlance2">
+                                                        <VBox class="pfGlanceCell">
+                                                            <Text text="{c>key}" class="pfGlanceLabel"/>
+                                                            <Text text="{c>big}" wrapping="true" class="pfGlanceBig"/>
+                                                            <Text text="{c>sub}" wrapping="true" class="pfGlanceSub"/>
+                                                            <Link text="자세히 →" press=".onGoItem" class="pfGlanceMore"/>
+                                                        </VBox>
+                                                    </FlexBox>
+                                                </VBox>
+                                            </FlexBox>
+
+                                            <!-- ③ 주요 구현 사례 4 (v0.7, 옛 대표 하이라이트) -->
+                                            <VBox id="secHighlights" class="pfSection">
+                                                <HBox class="pfSectionHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/home/highlights/title}" level="H2" class="pfSectionTitle"/>
+                                                    <Text text="{c>/home/highlights/note}" class="pfSectionNote"/>
+                                                </HBox>
+                                                <List items="{vm>/highlights}" showSeparators="None" itemPress=".onHighlightPress"
+                                                      class="pfHlList" backgroundDesign="Transparent">
+                                                    <CustomListItem type="Active" class="pfHlCard">
+                                                        <VBox class="pfHlInner">
+                                                            <VBox class="pfHlThumb">
+                                                                <Image src="{path: 'vm>imageSrc', formatter: '.fmtMedia'}" visible="{= !!${vm>imageSrc} }"
+                                                                       width="100%" densityAware="false" class="pfHlImg"/>
+                                                                <!-- 이미지가 없는 카드: 개념도 (실제 화면이 아님을 표시) -->
+                                                                <VBox visible="{= !${vm>imageSrc} }" class="pfHlFlowWrap" justifyContent="Center">
+                                                                    <Text text="개념도" class="pfHlFlowTag"/>
+                                                                    <HBox items="{path: 'vm>flow', templateShareable: false}" alignItems="Center" justifyContent="Center" class="pfHlFlow">
+                                                                        <Text text="{vm>}" wrapping="true" class="pfHlFlowStep"/>
+                                                                    </HBox>
+                                                                </VBox>
+                                                            </VBox>
+                                                            <VBox class="pfHlBody">
+                                                                <HBox alignItems="Center" class="pfHlMeta">
+                                                                    <Text text="{vm>noText}" class="pfHlNo"/>
+                                                                    <Text text="{vm>axisLabel}" class="pfBadge pfBadgeAxis">
+                                                                        <customData><core:CustomData key="axis" value="{vm>axis}" writeToDom="true"/></customData>
+                                                                    </Text>
+                                                                </HBox>
+                                                                <Title text="{vm>title}" level="H3" wrapping="true" class="pfHlTitle"/>
+                                                                <Text text="{vm>one}" wrapping="true" visible="{= !${vm>points}.length }" class="pfHlOne"/>
+                                                                <!-- 0.2: points 가 있으면 한 줄 소개 대신 불릿 -->
+                                                                <VBox items="{path: 'vm>points', templateShareable: false}" visible="{= ${vm>points}.length > 0 }" renderType="Bare" class="pfBullets pfHlPts">
+                                                                    <Text text="{vm>}" wrapping="true" class="pfBullet pfHlPt"/>
+                                                                </VBox>
+                                                                <Text text="자세히 →" class="pfHlGo"/>
+                                                            </VBox>
+                                                        </VBox>
+                                                    </CustomListItem>
+                                                </List>
+                                            </VBox>
+
+                                            <!-- ④ 두 축 입구: SAP 크게, 공공 작게 -->
+                                            <VBox id="secAxes" class="pfSection">
+                                                <!-- 0.2: PC 에서 SAP 75%, 공공 25% 가로 배치 (높이는 늘리지 않음), 모바일은 세로 -->
+                                                <FlexBox renderType="Bare" class="pfAxisRow">
+                                                <FlexBox renderType="Bare" class="pfAxisBig">
+                                                    <VBox class="pfAxisImg">
+                                                        <Image src="{path: 'c>/home/axes/sap/imageSrc', formatter: '.fmtMedia'}"
+                                                               width="100%" densityAware="false" alt="경영지표 대시보드"/>
+                                                    </VBox>
+                                                    <VBox class="pfAxisBody">
+                                                        <Title text="{c>/home/axes/sap/title}" level="H3" wrapping="true" class="pfAxisTitle"/>
+                                                        <Text text="{c>/home/axes/sap/meta}" class="pfAxisMeta"/>
+                                                        <Text text="{c>/home/axes/sap/summary}" wrapping="true" visible="{= !${c>/home/axes/sap/points} }" class="pfAxisSummary"/>
+                                                        <!-- 0.2: points 가 있으면 소개 문단 대신 불릿 -->
+                                                        <VBox items="{c>/home/axes/sap/points}" visible="{= !!${c>/home/axes/sap/points} }" renderType="Bare" class="pfBullets pfAxisPts">
+                                                            <Text text="{c>}" wrapping="true" class="pfBullet pfAxisPt"/>
+                                                        </VBox>
+                                                        <HBox>
+                                                            <Button text="{c>/home/axes/sap/cta} →" press=".onGoPath" class="pfBtn pfBtnSoft">
+                                                                <customData><core:CustomData key="to" value="{c>/home/axes/sap/to}"/></customData>
+                                                            </Button>
+                                                        </HBox>
+                                                    </VBox>
+                                                </FlexBox>
+                                                <!-- 공공 웹시스템: SAP 보다 작은 소개 카드 -->
+                                                <FlexBox renderType="Bare" class="pfAxisSmall">
+                                                    <VBox class="pfAxisSmallBody">
+                                                        <Title text="{c>/home/axes/public/title}" level="H3" wrapping="true" class="pfAxisSmallTitle"/>
+                                                        <Text text="{c>/home/axes/public/summary}" wrapping="true" visible="{= !${c>/home/axes/public/points} }" class="pfAxisSmallSummary"/>
+                                                    <VBox items="{c>/home/axes/public/points}" visible="{= !!${c>/home/axes/public/points} }" renderType="Bare" class="pfBullets pfAxisPts pfAxisSmallPts">
+                                                        <Text text="{c>}" wrapping="true" class="pfBullet pfAxisSmallPt"/>
+                                                    </VBox>
+                                                    </VBox>
+                                                    <Button text="{c>/home/axes/public/cta} →" press=".onGoPath" class="pfBtn pfBtnSoft pfAxisSmallBtn">
+                                                        <customData><core:CustomData key="to" value="{c>/home/axes/public/to}"/></customData>
+                                                    </Button>
+                                                </FlexBox>
+                                                </FlexBox>
+                                            </VBox>
+
+                                            <!-- ⑥ 이력 (0.2: 가로 타임라인, 왼쪽 과거에서 오른쪽 최근. 시점은 선 위, 기간은 선 아래. 모바일은 오래된 순 세로) -->
+                                            <VBox id="secCareer" class="pfSection">
+                                                <HBox class="pfSectionHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/home/career/title}" level="H2" class="pfSectionTitle"/>
+                                                    <Text text="{c>/home/career/note}" visible="{= !!${c>/home/career/note} }" class="pfSectionNote"/>
+                                                </HBox>
+                                                <VBox class="pfHtlScroll">
+                                                    <!-- 0.2: 시점은 선 위 점, 기간은 선 아래 음영 사각형 (.fmtCareerHtml 이 그림) -->
+                                                    <core:HTML content="{path: 'c>/home/career', formatter: '.fmtCareerHtml'}"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- ⑦ 기술과 자격 -->
+                                            <VBox id="secSkills" class="pfSection">
+                                                <HBox class="pfSectionHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/home/skills/title}" level="H2" class="pfSectionTitle"/>
+                                                    <Text text="{c>/home/skills/note}" visible="{= !!${c>/home/skills/note} }" class="pfSectionNote"/>
+                                                </HBox>
+                                                <FlexBox renderType="Bare" class="pfSkills">
+                                                    <VBox class="pfBox">
+                                                        <VBox items="{c>/home/skills/groups}" renderType="Bare">
+                                                            <VBox class="pfSkGroup">
+                                                                <Text text="{c>name}" class="pfSkName"/>
+                                                                <HBox items="{path: 'c>tags', templateShareable: false}" wrap="Wrap" class="pfSkTags">
+                                                                    <Text text="{c>}" class="pfPill"/>
+                                                                </HBox>
+                                                            </VBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                    <VBox class="pfBox">
+                                                        <VBox items="{c>/home/skills/certGroups}" renderType="Bare" class="pfCertGroups">
+                                                            <VBox class="pfCertGroup">
+                                                                <Text text="{c>title}" class="pfSkName"/>
+                                                                <!-- 2026-10-21 UX 개선 11: url 이 있는 자격은 검증 링크 (외부라서 ↗) -->
+                                                                <VBox items="{path: 'c>items', templateShareable: false}" renderType="Bare">
+                                                                    <HBox renderType="Bare" class="pfCertRow">
+                                                                        <Link text="{c>name} ↗" href="{c>url}" target="_blank" visible="{= !!${c>url} }" wrapping="true" class="pfCertName pfCertLink"/>
+                                                                        <Text text="{c>name}" visible="{= !${c>url} }" wrapping="true" class="pfCertName"/>
+                                                                    </HBox>
+                                                                </VBox>
+                                                            </VBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </FlexBox>
+                                                <!-- 0.2: 이 포트폴리오 자체의 SAPUI5 구현 소개 (작은 안내 패널, 누르면 DevInfo.fragment.xml 팝업) -->
+                                                <HBox visible="{= !!${c>/home/devInfo/title} }" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="pfDevPanel">
+                                                    <VBox class="pfDevPanelText">
+                                                        <Title text="{c>/home/devInfo/title}" level="H3" wrapping="true" class="pfDevPanelTitle"/>
+                                                        <Text text="{c>/home/devInfo/sub}" wrapping="true" class="pfDevPanelSub"/>
+                                                    </VBox>
+                                                    <Link text="{c>/home/devInfo/link}" press=".onDevInfoOpen" ariaHasPopup="Dialog" class="pfDevPanelLink"/>
+                                                </HBox>
+                                            </VBox>
+
+                                            <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
+                                            <VBox binding="{c>/site/closing/next/home}" class="pfClosingWrap">
+                                                <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
+                                            </VBox>
+
+                                        </VBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- ── PF-10 SAP 프로그램 ── -->
+                                <ScrollContainer id="pageSap" height="100%" width="100%" vertical="true" horizontal="false" focusable="true" class="pfSapSnap">
+                                    <VBox class="pfPageInner"><VBox class="pfContainer">
+
+                                        <!-- 홈 링크도 소개 스냅 영역 안에 배치 -->
+                                        <VBox id="secSapTop" class="pfSpHero pfSapSnapSection">
+                                        <Link text="← 홈" press=".onNav" class="pfBack">
+                                            <customData><core:CustomData key="to" value="home"/></customData>
+                                        </Link>
+                                        <!-- v0.8 Hero: 분류, 제목, 부제, 리드, 메타, 섹션 바로가기 -->
+                                            <!-- 2026-10-21 UX 개선 3: 왼쪽 소개, 오른쪽 수상 배지와 발표 영상 썸네일 (좁은 화면은 세로) -->
+                                            <FlexBox renderType="Bare" class="pfSpHeroGrid">
+                                            <VBox class="pfSpHeroMain">
+                                            <Text text="{c>/sap/eyebrow}" class="pfEyebrow"/>
+                                            <Title text="{c>/sap/title}" level="H1" wrapping="true" class="pfPageTitle"/>
+                                            <Text text="{c>/sap/hero/sub}" wrapping="true" class="pfSpSub"/>
+                                            <Text text="{c>/sap/hero/lead}" wrapping="true" visible="{= !${c>/sap/hero/points} }" class="pfSpLead"/>
+                                            <!-- 0.2: points 가 있으면 소개 문단 대신 불릿 -->
+                                            <VBox items="{c>/sap/hero/points}" visible="{= !!${c>/sap/hero/points} }" renderType="Bare" class="pfBullets pfSpLeadPts">
+                                                <Text text="{c>}" wrapping="true" class="pfBullet pfSpLeadPt"/>
+                                            </VBox>
+                                            <HBox items="{c>/sap/hero/meta}" wrap="Wrap" renderType="Bare" class="pfSpMeta">
+                                                <Text text="{c>}" class="pfSpChip"/>
+                                            </HBox>
+                                            </VBox>
+                                            <VBox visible="{= !!${c>/sap/hero/award} || !!${vm>/sapHeroVideo/thumb} }" class="pfSpProof">
+                                                <HBox visible="{= !!${c>/sap/hero/award} }" alignItems="Center" class="pfSpAward">
+                                                    <core:Icon src="sap-icon://favorite" class="pfSpAwardIcon"/>
+                                                    <VBox class="pfSpAwardText">
+                                                        <Text text="{c>/sap/hero/award/label}" class="pfSpAwardLabel"/>
+                                                        <Text text="{c>/sap/hero/award/sub}" wrapping="true" class="pfSpAwardSub"/>
+                                                    </VBox>
+                                                </HBox>
+                                                <VBox visible="{= !!${vm>/sapHeroVideo/thumb} }" class="pfSpVideoThumb">
+                                                    <Image src="{vm>/sapHeroVideo/thumb}" alt="{vm>/sapHeroVideo/caption}" press=".onSapHeroVideo"
+                                                           width="100%" densityAware="false" decorative="false" class="pfSpVideoImg"/>
+                                                    <Text text="▶ {vm>/sapHeroVideo/caption}" wrapping="true" class="pfSpVideoCaption"/>
+                                                </VBox>
+                                            </VBox>
+                                            </FlexBox>
+                                            <IconTabBar id="sapHeroTabs" selectedKey="{vm>/sapHeroTab}" select=".onSapHeroTabSelect"
+                                                expandable="false" applyContentPadding="false" items="{c>/sap/hero/previewTabs}" class="pfSapHeroTabs pfUnifiedTabs">
+                                                <items><IconTabFilter key="{c>key}" text="{c>label}"/></items>
+                                                <content>
+                                                    <portfolio:ProjectPreview id="sapProjectPreview" mode="{vm>/sapHeroTab}" steps="{c>/sap/process/e2e/steps}"
+                                                        images="{vm>/sapHeroActive/images}" points="{vm>/sapHeroActive/points}" to="{vm>/sapHeroActive/to}" mediaPress=".onSapMediaPress"/>
+                                                </content>
+                                            </IconTabBar>
+
+                                        </VBox>
+
+                                        <!-- 01. 프로젝트 개요 -->
+                                        <VBox id="secSapOverview" class="pfSection pfSectionLine pfSpSec pfSapSnapSection">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead"><Text text="01" class="pfCaseSecNo"/><Title text="프로젝트 개요" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/></HBox>
+                                            <IconTabBar id="sapOverviewTabs" selectedKey="{vm>/sapOverviewTab}" select=".onSapOverviewTabSelect" expandable="false" applyContentPadding="false" items="{c>/sap/overview/tabs}" class="pfUnifiedTabs">
+                                                <items><IconTabFilter key="{c>key}" text="{c>label}"/></items>
+                                                <content>
+                                                    <portfolio:OverviewDocument sections="{vm>/sapOverviewSections}"/>
+                                                    <portfolio:Challenges id="sapOverviewChallenges" visible="{= ${vm>/sapOverviewTab} === 'challenges' }"
+                                                        challenges="{c>/sap/overview/tabChallenges}" heading="비즈니스 챌린지" note="{c>/sap/overview/challengesNote}"/>
+                                                </content>
+                                            </IconTabBar>
+                                        </VBox>
+
+                                        <!-- 02. 업무 프로세스 -->
+                                        <VBox id="secSapProcess" class="pfSection pfSectionLine pfSpSec pfSapSnapSection">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="02" class="pfCaseSecNo"/>
+                                                <Title text="업무 프로세스" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <Text text="{c>/sap/process/intro}" visible="{= ${c>/sap/process/showIntro} !== false }" wrapping="true" class="pfSpBody"/>
+                                            <IconTabBar id="sapProcessTabs" selectedKey="{vm>/sapProcessTab}" select=".onSapProcessTabSelect" expandable="false" applyContentPadding="false" class="pfUnifiedTabs">
+                                                <items><IconTabFilter key="e2e" text="End-to-End 프로세스"/><IconTabFilter key="co" text="CO 모듈 프로세스"/></items>
+                                                <content>
+
+                                            <!-- End-to-End -->
+                                            <VBox id="secSapE2e" visible="{= ${vm>/sapProcessTab} === 'e2e' }" class="pfSpSub2">
+                                                <Title text="{c>/sap/process/e2e/title}" level="H3" wrapping="true" class="pfSpH3 pfSpH3Lg"/>
+                                                <!-- 0.2 (10-17): 업무 단계별 주요 문제점과 도입 방안 (발표자료) -->
+                                                <VBox visible="{= !!${c>/sap/process/e2e/issueRows} }" renderType="Bare" class="pfSpIssueWrap">
+                                                    <Title text="{c>/sap/process/e2e/issueTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                                    <VBox renderType="Bare" class="pfSpIssue">
+                                                        <HBox items="{c>/sap/process/e2e/issueHead}" renderType="Bare" class="pfSpIssueRow pfSpIssueHead">
+                                                            <Text text="{c>}" class="pfSpIssueTh"/>
+                                                        </HBox>
+                                                        <VBox items="{c>/sap/process/e2e/issueRows}" renderType="Bare">
+                                                            <HBox renderType="Bare" class="pfSpIssueRow">
+                                                                <Text text="{c>stage}" wrapping="true" class="pfSpIssueStage"/>
+                                                                <HBox renderType="Bare" class="pfSpIssueCell"><Text text="{c>issue}" wrapping="true" class="pfSpIssueTag pfSpIssueBad"/></HBox>
+                                                                <HBox renderType="Bare" class="pfSpIssueCell"><Text text="{c>fix}" wrapping="true" class="pfSpIssueTag pfSpIssueGood"/></HBox>
+                                                            </HBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <Title text="{c>/sap/process/e2e/stepsTitle}" visible="{= !!${c>/sap/process/e2e/stepsTitle} }" level="H4" wrapping="true" class="pfSpH4"/>
+                                                <Text text="{c>/sap/process/e2e/stepsAlt}" class="pfSrOnly"/>
+                                                <VBox items="{vm>/sapE2e}" renderType="Bare" class="pfSpSteps">
+                                                    <VBox class="pfSpStep">
+                                                        <HBox alignItems="Baseline" class="pfSpStepHead">
+                                                            <Text text="STEP {vm>no}" class="pfSpStepNo"/>
+                                                            <Text text="{vm>modules}" class="pfSpStepMod"/>
+                                                        </HBox>
+                                                        <Title text="{vm>title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                        <Text text="{vm>items}" wrapping="true" class="pfSpStepItems"/>
+                                                        <VBox class="pfSpStepCh">
+                                                            <Text text="Business Challenge" class="pfSpK"/>
+                                                            <Text text="{vm>challenge}" wrapping="true" class="pfSpStepChText"/>
+                                                        </VBox>
+                                                        <!-- v0.8 개선 6: 상세 링크가 없는 팀원 영역 표시 -->
+                                                        <VBox visible="{= ${vm>links}.length > 0 }" class="pfSpDirectPanel">
+                                                            <Text text="직접 개발 목록" class="pfSpDirectTitle"/>
+                                                            <VBox items="{path: 'vm>links', templateShareable: false}" renderType="Bare" class="pfSpStepLinks">
+                                                            <Link text="{vm>title}" press=".onGoPath" wrapping="true" class="pfSpStepLink">
+                                                                <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                            </Link>
+                                                        </VBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+
+                                                <Text text="{c>/sap/process/e2e/stepsEnd}" visible="{= !!${c>/sap/process/e2e/stepsEnd} }" wrapping="true" class="pfSpStepsEnd"/>
+
+                                                <VBox visible="{= ${c>/sap/process/e2e/showInterfaces} !== false }" renderType="Bare">
+                                                <Title text="{c>/sap/process/e2e/interfacesTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                                <VBox renderType="Bare" class="pfMdTable pfSpTable">
+                                                    <customData>
+                                                        <core:CustomData key="cols" value="{vm>/sapTables/interfaces/cols}" writeToDom="true"/>
+                                                        <core:CustomData key="first" value="{vm>/sapTables/interfaces/first}" writeToDom="true"/>
+                                                        <core:CustomData key="kind" value="even" writeToDom="true"/>
+                                                    </customData>
+                                                    <HBox items="{path: 'vm>/sapTables/interfaces/head', templateShareable: false}" renderType="Bare" class="pfMdRow pfMdHead">
+                                                        <Text text="{vm>}" wrapping="true" class="pfMdTh"/>
+                                                    </HBox>
+                                                    <VBox items="{path: 'vm>/sapTables/interfaces/rows', templateShareable: false}" renderType="Bare">
+                                                        <HBox items="{path: 'vm>cells', templateShareable: false}" renderType="Bare" class="pfMdRow">
+                                                            <Text text="{vm>v}" wrapping="true" class="pfMdTd">
+                                                                <customData><core:CustomData key="label" value="{vm>h}" writeToDom="true"/></customData>
+                                                            </Text>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <Text text="{c>/sap/process/e2e/interfacesNote}" wrapping="true" class="pfFoot"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- CO 모듈 프로세스 -->
+                                            <VBox id="secSapCo" visible="{= ${vm>/sapProcessTab} === 'co' }" class="pfSpSub2">
+                                                <Title text="{c>/sap/process/co/title}" level="H3" wrapping="true" class="pfSpH3 pfSpH3Lg"/>
+                                                <Text text="{c>/sap/process/co/subtitle}" wrapping="true" class="pfSpSubtitle"/>
+                                                <VBox items="{c>/sap/process/co/points}" renderType="Bare" class="pfBullets pfSpReviewPoints"><Text text="{c>}" wrapping="true" class="pfBullet"/></VBox>
+                                                <HBox class="pfSectionHead pfSpFlowHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/sap/flow/title}" level="H4" class="pfSpH4 pfSpH4Flat"/><Text text="{c>/sap/flow/note}" class="pfSectionNote"/>
+                                                </HBox>
+                                                <portfolio:CoProcess lanes="{c>/sap/coDocument}"/>
+                                            </VBox>
+                                                </content>
+                                            </IconTabBar>
+                                        </VBox>
+
+                                        <!-- 03. 담당 프로그램: 레퍼런스 HTML과 같은 구조의 SAPUI5 컨트롤 -->
+                                        <VBox id="secSapPrograms" class="pfSection pfSectionLine pfSpSec pfSapSnapSection">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead"><Text text="03" class="pfCaseSecNo"/><Title text="담당 프로그램" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/></HBox>
+                                            <Text text="{c>/sap/panels/description}" wrapping="true" class="pfSpBody"/>
+                                            <IconTabBar id="sapProgramTabs" selectedKey="{vm>/sapProgramTab}" select=".onSapProgramTabSelect" expandable="false" applyContentPadding="false" class="pfUnifiedTabs">
+                                                <items>
+                                                    <!-- 2026-10-21 UX 개선 18: 개수는 이름 뒤 한 줄로 (공통 기능: 자재 이동 CO 전표 함수 1, 시연 데이터 도구 1) -->
+                                                    <IconTabFilter key="all" text="전체 9"/><IconTabFilter key="gui" text="SAP GUI 6"/>
+                                                    <IconTabFilter key="fiori" text="SAP Fiori 3"/><IconTabFilter key="shared" text="공통 기능 2"/>
+                                                </items>
+                                                <content>
+                                                    <portfolio:Deliverables id="sapDeliverables" visible="{= ${vm>/sapProgramTab} !== 'shared' }" programs="{vm>/sapDeliverables}" selectedType="{vm>/sapProgramTab}"/>
+                                        <VBox id="secSapShared" visible="{= ${vm>/sapProgramTab} === 'shared' }" class="pfSharedInPrograms">
+                                            <Title text="공통 기능 개발" level="H3" class="pfSpH3"/>
+                                            <Title text="{c>/sap/shared/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                            <Text text="{c>/sap/shared/lead}" wrapping="true" class="pfSpBody"/>
+                                            <Title text="{c>/sap/shared/chainTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <Text text="{c>/sap/shared/chainAlt}" class="pfSrOnly"/>
+                                            <VBox items="{vm>/sapChain}" renderType="Bare" class="pfSpChain">
+                                                <HBox class="pfSpChainStep" alignItems="Start">
+                                                    <Text text="{vm>num}" class="pfSpChainNo"/>
+                                                    <VBox class="pfSpChainBody">
+                                                        <HBox alignItems="Center" wrap="Wrap" class="pfSpChainHead">
+                                                            <Link text="{vm>title}" press=".onGoPath" visible="{= !!${vm>to} }" wrapping="true" class="pfSpChainLink">
+                                                                <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                            </Link>
+                                                            <Text text="{vm>title}" visible="{= !${vm>to} }" wrapping="true" class="pfSpChainTitle"/>
+                                                            <Text text="{vm>who}" class="pfRole pfRoleSm">
+                                                                <customData><core:CustomData key="role" value="{vm>role}" writeToDom="true"/></customData>
+                                                            </Text>
+                                                        </HBox>
+                                                        <Text text="{vm>sub}" wrapping="true" class="pfSpChainSub"/>
+                                                    </VBox>
+                                                </HBox>
+                                            </VBox>
+                                            <Text text="{c>/sap/shared/note}" wrapping="true" class="pfFoot"/>
+                                            <!-- 0.2: 이동유형별 회계처리 기준 -->
+                                            <Title text="{c>/sap/shared/movementsTitle}" level="H4" wrapping="true" visible="{= ${vm>/sapTables/movements/rows}.length > 0 }" class="pfSpH4"/>
+                                            <VBox renderType="Bare" class="pfMdTable pfSpTable" visible="{= ${vm>/sapTables/movements/rows}.length > 0 }">
+                                                <customData>
+                                                    <core:CustomData key="cols" value="{vm>/sapTables/movements/cols}" writeToDom="true"/>
+                                                    <core:CustomData key="kind" value="move" writeToDom="true"/>
+                                                </customData>
+                                                <HBox items="{path: 'vm>/sapTables/movements/head', templateShareable: false}" renderType="Bare" class="pfMdRow pfMdHead">
+                                                    <Text text="{vm>}" wrapping="true" class="pfMdTh"/>
+                                                </HBox>
+                                                <VBox items="{path: 'vm>/sapTables/movements/rows', templateShareable: false}" renderType="Bare">
+                                                    <HBox items="{path: 'vm>cells', templateShareable: false}" renderType="Bare" class="pfMdRow">
+                                                        <Text text="{vm>v}" wrapping="true" class="pfMdTd">
+                                                            <customData><core:CustomData key="label" value="{vm>h}" writeToDom="true"/></customData>
+                                                        </Text>
+                                                    </HBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <HBox class="pfSectionHead pfSpModHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                <Title text="{c>/sap/shared/modulesTitle}" level="H4" class="pfSpH4 pfSpH4Flat"/>
+                                                <Text text="{c>/sap/shared/modulesNote}" class="pfSectionNote"/>
+                                            </HBox>
+                                            <List items="{vm>/sapModules}" showSeparators="None" itemPress=".onCardPress"
+                                                  class="pfCatList" backgroundDesign="Transparent">
+                                                <CustomListItem type="Active" class="pfCat">
+                                                    <core:Fragment fragmentName="portfolio.dashboard.view.CatCard" type="XML"/>
+                                                </CustomListItem>
+                                            </List>
+
+                                            <!-- v0.8 결정 C: 보조 도구 -->
+                                            <VBox visible="{= ${vm>/sapModulesAux}.length > 0 }" renderType="Bare" class="pfSpAux">
+                                                <HBox class="pfSectionHead pfSpModHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/sap/shared/auxTitle}" level="H4" class="pfSpH4 pfSpH4Flat"/>
+                                                    <Text text="{c>/sap/shared/auxNote}" class="pfSectionNote"/>
+                                                </HBox>
+                                                <List items="{vm>/sapModulesAux}" showSeparators="None" itemPress=".onCardPress"
+                                                      class="pfCatList" backgroundDesign="Transparent">
+                                                    <CustomListItem type="Active" class="pfCat">
+                                                        <core:Fragment fragmentName="portfolio.dashboard.view.CatCard" type="XML"/>
+                                                    </CustomListItem>
+                                                </List>
+                                            </VBox>
+                                        </VBox>
+
+                                                </content>
+                                            </IconTabBar>
+                                        </VBox>
+
+                                        <!-- 04. 프로젝트 성과: ui_4_2 목업 구조, 기존 블루 테마 -->
+                                        <VBox id="secSapOutcomes" class="pfSection pfSectionLine pfSpSec pfSapSnapSection">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="04" class="pfCaseSecNo"/>
+                                                <Title text="프로젝트 성과" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <portfolio:Outcomes id="sapOutcomeReport" outcomes="{c>/sap/outcomes}" decisions="{c>/sap/decisions}"
+                                                outputs="{c>/sap/outputs}" retro="{c>/sap/retro}"/>
+                                        </VBox>
+
+                                        <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
+                                        <VBox binding="{c>/site/closing/next/sap}" class="pfClosingWrap">
+                                            <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
+                                        </VBox>
+
+                                    </VBox></VBox>
+                                </ScrollContainer>
+
+                                <!-- ── PF-20 공공 시스템 기능 설계 ── -->
+                                <ScrollContainer id="pagePublic" height="100%" width="100%" vertical="true" horizontal="false">
+                                    <VBox class="pfPageInner"><VBox class="pfContainer pfPub">
+
+                                        <Link text="← 홈" press=".onNav" class="pfBack">
+                                            <customData><core:CustomData key="to" value="home"/></customData>
+                                        </Link>
+                                        <!-- v0.8 Hero: 분류, 제목, 부제, 리드, 메타, 바로가기, 페이지 안 목차 (사이드바 하위 메뉴는 두지 않음) -->
+                                        <VBox id="secPubTop" class="pfSpHero">
+                                            <Text text="{c>/public/eyebrow}" class="pfEyebrow"/>
+                                            <Title text="{c>/public/title}" level="H1" wrapping="true" class="pfPageTitle"/>
+                                            <Text text="{c>/public/hero/sub}" wrapping="true" class="pfSpSub"/>
+                                            <Text text="{c>/public/hero/lead}" wrapping="true" class="pfSpLead"/>
+                                            <VBox items="{vm>/pubSummary}" renderType="Bare" class="pfPubSummary">
+                                                <HBox class="pfPubSummaryPair" alignItems="Start">
+                                                    <Text text="{vm>key}" wrapping="true" class="pfPubSummaryKey"/>
+                                                    <Text text="{vm>value}" wrapping="true" class="pfPubSummaryValue"/>
+                                                </HBox>
+                                            </VBox>
+                                        </VBox>
+
+                                        <HBox id="pubSectionNav" alignItems="Center" wrap="Wrap" class="pfPubSectionNav">
+                                            <IconTabBar id="pubSectionTabs" selectedKey="{vm>/pubTab}" select=".onPubTabSelect" expandable="false" applyContentPadding="false" class="pfPubTabs">
+                                                <items>
+                                                    <IconTabFilter key="overview" text="프로젝트 개요"/>
+                                                    <IconTabFilter key="process" text="업무 흐름 보기"/>
+                                                    <IconTabFilter key="cases" text="주요 개선 사례"/>
+                                                    <IconTabFilter key="operations" text="시스템 운영 및 문제 해결"/>
+                                                    <IconTabFilter key="outcomes" text="성과 및 표창"/>
+                                                </items>
+                                            </IconTabBar>
+                                            <CheckBox text="전체 연속 보기" selected="{vm>/pubShowAll}" select=".onPubShowAll" class="pfPubViewAll"/>
+                                        </HBox>
+
+                                        <!-- 01. 프로젝트 개요 -->
+                                        <VBox id="secPubOverview" visible="{= ${vm>/pubShowAll} || ${vm>/pubTab} === 'overview' }" class="pfSection pfSectionLine pfSpSec">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="01" class="pfCaseSecNo"/>
+                                                <Title text="프로젝트 개요" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <VBox class="pfPubBanner">
+                                                <Title text="{c>/public/overview/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <VBox items="{c>/public/overview/paragraphs}" renderType="Bare">
+                                                    <Text text="{c>}" wrapping="true" class="pfOvPara"/>
+                                                </VBox>
+                                            </VBox>
+                                            <VBox items="{c>/public/overview/table}" renderType="Bare" class="pfKv pfPubSpec">
+                                                <HBox class="pfKvRow" alignItems="Start">
+                                                    <customData><core:CustomData key="strong" value="{= ${c>strong} ? 'y' : 'n' }" writeToDom="true"/></customData>
+                                                    <Text text="{c>key}" wrapping="true" class="pfKvKey"/>
+                                                    <Text text="{c>value}" wrapping="true" class="pfKvVal"/>
+                                                </HBox>
+                                            </VBox>
+
+                                            <Title text="핵심 역할" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <VBox items="{vm>/pubRoles}" renderType="Bare" class="pfCasePoints">
+                                                <VBox class="pfCasePoint">
+                                                    <HBox alignItems="Baseline" class="pfPubCardHead">
+                                                        <Text text="{vm>num}" class="pfCasePointNo"/>
+                                                        <Title text="{vm>title}" level="H4" wrapping="true" class="pfCasePointTitle"/>
+                                                    </HBox>
+                                                    <Text text="{vm>text}" wrapping="true" class="pfCasePointText"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <Text text="{c>/public/overview/rolesNote}" visible="{= !!${c>/public/overview/rolesNote} }" wrapping="true" class="pfFoot"/>
+
+                                            <Title text="{c>/public/overview/envTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <VBox items="{c>/public/overview/env}" renderType="Bare" class="pfBullets pfSpNotes">
+                                                <Text text="{c>}" wrapping="true" class="pfBullet"/>
+                                            </VBox>
+
+                                            <!-- 0.2: 예전 "요구를 정의하고..." 업무 유형 표는 핵심 역할 4개와 겹쳐 삭제 -->
+                                        </VBox>
+
+                                        <!-- 02. 업무 및 시스템 구조 -->
+                                        <VBox id="secPubProcess" visible="{= ${vm>/pubShowAll} || ${vm>/pubTab} === 'process' }" class="pfSection pfSectionLine pfSpSec">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="02" class="pfCaseSecNo"/>
+                                                <Title text="업무 및 시스템 구조" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <VBox class="pfPubBanner">
+                                                <Title text="{c>/public/process/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/process/lead}" wrapping="true" class="pfSpBody"/>
+                                            </VBox>
+
+                                            <Title text="{c>/public/process/flowTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <Text text="{c>/public/process/stepsAlt}" class="pfSrOnly"/>
+                                            <!-- 0.2: 총량제 업무 흐름. 개발사업 관리에서 대규모와 소규모로 나뉘고, 연계와 자동 산정은 소규모에만, 두 갈래는 이행평가로 모임 -->
+                                            <VBox renderType="Bare" class="pfPubFlow">
+                                                <VBox class="pfSpStep pfPubFlowBox">
+                                                    <Text text="STEP {c>/public/process/flow/plan/no}" class="pfSpStepNo"/>
+                                                    <Title text="{c>/public/process/flow/plan/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                    <Text text="{c>/public/process/flow/plan/text}" wrapping="true" class="pfSpStepItems"/>
+                                                </VBox>
+                                                <HBox renderType="Bare" class="pfPubFlowArrow"/>
+                                                <VBox class="pfSpStep pfPubFlowBox">
+                                                    <Text text="STEP {c>/public/process/flow/dev/no}" class="pfSpStepNo"/>
+                                                    <Title text="{c>/public/process/flow/dev/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                    <Text text="{c>/public/process/flow/dev/text}" wrapping="true" class="pfSpStepItems"/>
+                                                </VBox>
+                                                <HBox renderType="Bare" class="pfPubFlowSplit"/>
+                                                <FlexBox renderType="Bare" class="pfPubFlowBranch">
+                                                    <VBox renderType="Bare" class="pfPubFlowCol">
+                                                        <VBox class="pfSpStep pfPubFlowBox">
+                                                            <Text text="STEP {c>/public/process/flow/large/no}" class="pfSpStepNo"/>
+                                                            <Title text="{c>/public/process/flow/large/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                            <Text text="{c>/public/process/flow/large/text}" wrapping="true" class="pfSpStepItems"/>
+                                                        </VBox>
+                                                        <HBox renderType="Bare" class="pfPubFlowFill"/>
+                                                    </VBox>
+                                                    <VBox renderType="Bare" class="pfPubFlowCol">
+                                                        <VBox class="pfSpStep pfPubFlowBox pfPubFlowSmall">
+                                                            <Text text="STEP {c>/public/process/flow/small/no}" class="pfSpStepNo"/>
+                                                            <Title text="{c>/public/process/flow/small/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                            <Text text="{c>/public/process/flow/small/text}" wrapping="true" class="pfSpStepItems"/>
+                                                            <VBox items="{c>/public/process/flow/small/subs}" renderType="Bare" class="pfPubFlowSubs">
+                                                                <VBox renderType="Bare" class="pfPubFlowSub">
+                                                                    <Text text="{c>title}" wrapping="true" class="pfPubFlowSubTitle"/>
+                                                                    <Text text="{c>text}" wrapping="true" class="pfPubFlowSubText"/>
+                                                                </VBox>
+                                                            </VBox>
+                                                        </VBox>
+                                                        <HBox renderType="Bare" class="pfPubFlowFill"/>
+                                                    </VBox>
+                                                </FlexBox>
+                                                <HBox renderType="Bare" class="pfPubFlowMerge"/>
+                                                <VBox class="pfSpStep pfPubFlowBox">
+                                                    <Text text="STEP {c>/public/process/flow/eval/no}" class="pfSpStepNo"/>
+                                                    <Title text="{c>/public/process/flow/eval/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                    <Text text="{c>/public/process/flow/eval/text}" wrapping="true" class="pfSpStepItems"/>
+                                                </VBox>
+                                                <HBox renderType="Bare" class="pfPubFlowArrow"/>
+                                                <VBox class="pfSpStep pfPubFlowBox">
+                                                    <Text text="STEP {c>/public/process/flow/use/no}" class="pfSpStepNo"/>
+                                                    <Title text="{c>/public/process/flow/use/title}" level="H4" wrapping="true" class="pfSpStepTitle"/>
+                                                    <Text text="{c>/public/process/flow/use/text}" wrapping="true" class="pfSpStepItems"/>
+                                                </VBox>
+                                            </VBox>
+                                            <Text text="{c>/public/process/flowNote}" wrapping="true" class="pfFoot"/>
+
+                                            <VBox id="secPubLink" class="pfSpSub2">
+                                                <Title text="{c>/public/process/linkTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/process/linkLead}" wrapping="true" class="pfSpBody"/>
+                                                <Text text="{c>/public/process/chainAlt}" class="pfSrOnly"/>
+                                                <VBox items="{vm>/pubChain}" renderType="Bare" class="pfSpChain pfSpGap">
+                                                    <HBox class="pfSpChainStep" alignItems="Start">
+                                                        <Text text="{vm>num}" class="pfSpChainNo"/>
+                                                        <Text text="{vm>title}" wrapping="true" class="pfSpChainTitle"/>
+                                                        <Text text="{vm>who}" class="pfRole pfRoleSm">
+                                                            <customData><core:CustomData key="role" value="{vm>role}" writeToDom="true"/></customData>
+                                                        </Text>
+                                                        <Text text="{vm>sub}" wrapping="true" class="pfSpChainSub"/>
+                                                    </HBox>
+                                                </VBox>
+                                                <Text text="{c>/public/process/chainNote}" wrapping="true" class="pfFoot"/>
+                                            </VBox>
+                                            <!-- 0.2: 예전 데이터와 기능 표는 위 두 흐름과 겹쳐 짧은 보충 문구로 -->
+                                            <VBox class="pfSpSub2">
+                                                <Title text="{c>/public/process/dataTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                                <Text text="{c>/public/process/dataLead}" wrapping="true" class="pfSpBody"/>
+
+                                            </VBox>
+
+                                        </VBox>
+
+                                        <!-- 03. 주요 개발 및 개선 사례 -->
+                                        <VBox id="secPubCases" visible="{= ${vm>/pubShowAll} || ${vm>/pubTab} === 'cases' }" class="pfSection pfSectionLine pfSpSec">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="03" class="pfCaseSecNo"/>
+                                                <Title text="주요 개발 및 개선 사례" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <VBox class="pfPubBanner">
+                                                <Title text="{c>/public/cases/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/cases/lead}" wrapping="true" class="pfSpBody"/>
+                                            </VBox>
+                                            <VBox class="pfQuote pfRule pfSpGap">
+                                                <Text text="{c>/public/cases/roleRule}" wrapping="true" class="pfRuleText"/>
+                                            </VBox>
+
+                                            <!-- 대표 사례 (홈 주요 구현 사례 4의 상세는 기존 카드 b01-link) -->
+                                            <VBox id="secPubFeatured" class="pfPubFeat">
+                                                <HBox alignItems="Center" wrap="Wrap" class="pfPubFeaturedHead">
+                                                    <Text text="{c>/public/cases/featured/code}" class="pfSpPanelCode"/>
+                                                    <Title text="{c>/public/cases/featured/title}" level="H3" wrapping="true" class="pfPubFeatTitle"/>
+                                                    <HBox items="{c>/public/cases/featured/tags}" wrap="Wrap" renderType="Bare" class="pfSpTags">
+                                                        <Text text="{c>}" class="pfSpTag"/>
+                                                    </HBox>
+                                                </HBox>
+                                                <Text text="{c>/public/cases/featured/intro}" wrapping="true" class="pfSpSubtitle"/>
+                                                <FlexBox renderType="Bare" class="pfPubFeatGrid">
+                                                    <VBox class="pfPubFeatCol">
+                                                        <Text text="{c>/public/cases/featured/whyTitle}" class="pfSpK pfSpKAccent"/>
+                                                        <Text text="{c>/public/cases/featured/why}" wrapping="true" class="pfPubFeatText"/>
+                                                    </VBox>
+                                                    <VBox class="pfPubFeatCol">
+                                                        <Text text="{c>/public/cases/featured/didTitle}" class="pfSpK pfSpKAccent"/>
+                                                        <VBox items="{c>/public/cases/featured/did}" renderType="Bare" class="pfBullets">
+                                                            <Text text="{c>}" wrapping="true" class="pfBullet"/>
+                                                        </VBox>
+                                                    </VBox>
+                                                </FlexBox>
+                                                <Text text="{c>/public/cases/featured/pointsTitle}" class="pfSpK pfSpKAccent pfPubFeatK"/>
+                                                <VBox items="{vm>/pubFeatPoints}" renderType="Bare" class="pfCasePoints pfSpGoals">
+                                                    <VBox class="pfCasePoint">
+                                                        <HBox alignItems="Baseline" class="pfPubCardHead">
+                                                            <Text text="{vm>num}" class="pfCasePointNo"/>
+                                                            <Title text="{vm>title}" level="H4" wrapping="true" class="pfCasePointTitle"/>
+                                                        </HBox>
+                                                        <Text text="{vm>text}" wrapping="true" class="pfCasePointText"/>
+                                                    </VBox>
+                                                </VBox>
+                                                <Text text="{c>/public/cases/featured/recordsTitle}" class="pfSpK pfSpKAccent pfPubFeatK"/>
+                                                <!-- 0.2: 기존 제목은 그대로, 아래에 작은 기술 부제. 배지는 이 사례 안에서의 수행 유형 -->
+                                                <VBox items="{vm>/pubFeatRecords}" renderType="Bare" class="pfPubRecs">
+                                                    <HBox alignItems="Start" class="pfPubRec pfPubRecSubbed">
+                                                        <Text text="{vm>role}" class="pfRole pfRoleSm">
+                                                            <customData><core:CustomData key="role" value="{vm>badge}" writeToDom="true"/></customData>
+                                                        </Text>
+                                                        <VBox renderType="Bare" class="pfPubRecMain">
+                                                            <Link text="{vm>title}" press=".onGoPath" wrapping="true" class="pfPubRecLink">
+                                                                <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                            </Link>
+                                                            <Text text="{vm>sub}" visible="{= !!${vm>sub} }" wrapping="true" class="pfPubRecSub"/>
+                                                        </VBox>
+                                                        <Text text="{vm>year}" class="pfPubRecYear"/>
+                                                    </HBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- 함께 수행한 개선 사례 3개 -->
+                                            <Title text="{c>/public/cases/panelsTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <VBox items="{vm>/pubPanels}" renderType="Bare" class="pfSpPmPanels pfPubPanels">
+                                                <VBox class="pfBox pfSpPm pfPubPanel">
+                                                    <HBox alignItems="Baseline" class="pfPubCardHead">
+                                                        <Text text="{vm>code}" class="pfSpPanelCode"/>
+                                                        <Title text="{vm>title}" level="H4" wrapping="true" class="pfSpPmTitle"/>
+                                                    </HBox>
+                                                    <HBox items="{path: 'vm>tags', templateShareable: false}" wrap="Wrap" renderType="Bare" class="pfSpTags">
+                                                        <Text text="{vm>}" class="pfSpTag"/>
+                                                    </HBox>
+                                                    <VBox class="pfPubKv">
+                                                        <Text text="업무적 목적" class="pfSpK"/>
+                                                        <Text text="{vm>purpose}" wrapping="true" class="pfSpPmText"/>
+                                                        <Text text="실제 수행 역할" class="pfSpK"/>
+                                                        <Text text="{vm>role}" wrapping="true" class="pfSpPmText"/>
+                                                        <Text text="개선 방향" class="pfSpK"/>
+                                                        <Text text="{vm>direction}" wrapping="true" class="pfSpPmText"/>
+                                                    </VBox>
+                                                    <Text text="관련 기록" visible="{= ${vm>records}.length > 0 }" class="pfSpK pfSpKAccent"/>
+                                                    <VBox items="{path: 'vm>records', templateShareable: false}" renderType="Bare" class="pfPubRecs pfPubRecsSm">
+                                                        <HBox alignItems="Center" class="pfPubRec">
+                                                            <Text text="{vm>role}" class="pfRole pfRoleSm">
+                                                                <customData><core:CustomData key="role" value="{vm>badge}" writeToDom="true"/></customData>
+                                                            </Text>
+                                                            <Link text="{vm>title}" press=".onGoPath" wrapping="true" class="pfPubRecLink">
+                                                                <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                            </Link>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- 투입 당시 멈춰 있던 핵심 기능 (기존 기록) -->
+                                            <HBox class="pfSectionHead pfSpFlowHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                <Title text="{c>/public/revive/title}" level="H4" class="pfSpH4 pfSpH4Flat"/>
+                                                <Text text="{c>/public/revive/note}" class="pfSectionNote"/>
+                                            </HBox>
+                                            <FlexBox items="{vm>/pubRevive}" renderType="Bare" class="pfRevive">
+                                                <VBox class="pfBox pfReviveCard">
+                                                    <Title text="{vm>title}" level="H5" wrapping="true" class="pfReviveTitle"/>
+                                                    <HBox class="pfRv pfRvBefore" alignItems="Start">
+                                                        <Text text="초기 상황" class="pfRvK"/>
+                                                        <Text text="{vm>before}" wrapping="true" class="pfRvV"/>
+                                                    </HBox>
+                                                    <HBox class="pfRv pfRvDid" alignItems="Start">
+                                                        <Text text="한 일" class="pfRvK"/>
+                                                        <Text text="{vm>did}" wrapping="true" class="pfRvV"/>
+                                                    </HBox>
+                                                    <HBox class="pfRv pfRvAfter" alignItems="Start">
+                                                        <Text text="결과" class="pfRvK"/>
+                                                        <Text text="{vm>after}" wrapping="true" class="pfRvV"/>
+                                                    </HBox>
+                                                    <VBox items="{path: 'vm>links', templateShareable: false}" renderType="Bare" class="pfRvLinks">
+                                                        <Link text="{vm>title}" press=".onGoPath" wrapping="true" class="pfRvLink">
+                                                            <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                        </Link>
+                                                    </VBox>
+                                                </VBox>
+                                            </FlexBox>
+
+                                            <!-- 업무 영역별 설계와 개발 기록 (기존 상세 카드 전체) -->
+                                            <VBox id="secPubCatalog" class="pfSpSub2">
+                                                <HBox class="pfSectionHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/public/cases/catalogTitle}" level="H3" class="pfSpH3"/>
+                                                    <Text text="{c>/public/cases/catalogNote}" class="pfSectionNote"/>
+                                                    <Button text="{= ${vm>/pubCatOpen} ? '접기' : '펼쳐 보기' }" press=".onPubCatFold" type="Transparent" class="pfSpFoldBtn"/>
+                                                </HBox>
+                                                <!-- 개선 1 (공공): 접혀 있을 때는 요약과 영역만 -->
+                                                <VBox visible="{= !${vm>/pubCatOpen} }" class="pfSpFoldList pfPubCatSum">
+                                                    <Text text="{c>/public/catalog/summary}" wrapping="true" class="pfSpBody"/>
+                                                    <VBox items="{c>/public/catalog/areas}" renderType="Bare" class="pfPubCatAreas">
+                                                        <HBox alignItems="Baseline" wrap="Wrap" class="pfGroupHead">
+                                                            <Text text="{c>key}" class="pfGroupKey"/>
+                                                            <Text text="{c>name}" class="pfPubCatAreaName"/>
+                                                            <Text text="{c>desc}" class="pfGroupDesc"/>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <HBox visible="{vm>/pubCatOpen}" justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="pfFilterBar">
+                                                    <IconTabBar selectedKey="{vm>/pubArea}" select=".onPubAreaTabSelect" expandable="false" applyContentPadding="false" items="{vm>/pubAreas}" class="pfPubTabs pfPubArchiveTabs">
+                                                        <items>
+                                                            <IconTabFilter key="{vm>value}" text="{vm>label}"/>
+                                                        </items>
+                                                    </IconTabBar>
+                                                    <CheckBox text="{c>/public/catalog/toggle}" selected="{vm>/pubDirect}" select=".onPubDirect" class="pfDirectToggle"/>
+                                                </HBox>
+                                                <VBox items="{vm>/pubGroups}" visible="{vm>/pubCatOpen}" renderType="Bare" class="pfGroups">
+                                                    <VBox class="pfGroup">
+                                                        <HBox alignItems="Baseline" wrap="Wrap" class="pfGroupHead">
+                                                            <Text text="{vm>key}" class="pfGroupKey"/>
+                                                            <Title text="{vm>name}" level="H4" class="pfGroupName"/>
+                                                            <Text text="{vm>desc}" class="pfGroupDesc"/>
+                                                        </HBox>
+                                                        <!-- 0.2: 빈 이미지 자리가 있는 카드 대신 간결한 분류형 목록 (제목을 누르면 레이어 팝업, PubRecord.fragment.xml) -->
+                                                        <VBox items="{path: 'vm>cards', templateShareable: false}" renderType="Bare" class="pfPubRecs pfPubCatRows">
+                                                            <HBox alignItems="Center" class="pfPubRec">
+                                                                <Text text="{vm>kind}" class="pfPubCatCode"/>
+                                                                <Text text="{vm>role}" class="pfRole pfRoleSm">
+                                                                    <customData><core:CustomData key="role" value="{= ${vm>role} === '직접 개발' ? '직접' : '공동' }" writeToDom="true"/></customData>
+                                                                </Text>
+                                                                <Link text="{vm>title}" press=".onGoPath" wrapping="true" ariaHasPopup="Dialog" class="pfPubRecLink">
+                                                                    <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                                </Link>
+                                                                <Text text="{vm>year}" class="pfPubRecYear"/>
+                                                            </HBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <Text text="조건에 맞는 카드가 없습니다." visible="{= ${vm>/pubCatOpen} &amp;&amp; ${vm>/pubGroups}.length === 0 }" class="pfEmpty"/>
+                                            </VBox>
+                                        </VBox>
+
+                                        <!-- 04. 시스템 운영 및 문제 해결 -->
+                                        <VBox id="secPubOperations" visible="{= ${vm>/pubShowAll} || ${vm>/pubTab} === 'operations' }" class="pfSection pfSectionLine pfSpSec">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="04" class="pfCaseSecNo"/>
+                                                <Title text="시스템 운영 및 문제 해결" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <VBox class="pfPubBanner">
+                                                <Title text="{c>/public/operations/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/operations/lead}" wrapping="true" class="pfSpBody"/>
+                                            </VBox>
+                                            <VBox items="{vm>/pubOps}" renderType="Bare" class="pfPubOps">
+                                                <VBox class="pfBox pfSpPm pfPubOp">
+                                                    <HBox alignItems="Baseline" class="pfPubCardHead">
+                                                        <Text text="{vm>code}" class="pfSpPanelCode"/>
+                                                        <Title text="{vm>title}" level="H4" wrapping="true" class="pfSpPmTitle"/>
+                                                    </HBox>
+                                                    <VBox class="pfPubKv">
+                                                        <Text text="문제 상황" class="pfSpK"/>
+                                                        <Text text="{vm>situation}" wrapping="true" class="pfSpPmText"/>
+                                                        <Text text="확인과 분석" class="pfSpK"/>
+                                                        <Text text="{vm>analysis}" wrapping="true" class="pfSpPmText"/>
+                                                        <Text text="조치와 협업" class="pfSpK"/>
+                                                        <Text text="{vm>action}" wrapping="true" class="pfSpPmText"/>
+                                                        <Text text="결과" visible="{= !!${vm>result} }" class="pfSpK"/>
+                                                        <Text text="{vm>result}" visible="{= !!${vm>result} }" wrapping="true" class="pfSpPmText"/>
+                                                    </VBox>
+                                                    <HBox items="{path: 'vm>tags', templateShareable: false}" wrap="Wrap" renderType="Bare" class="pfSpTags">
+                                                        <Text text="{vm>}" class="pfSpTag"/>
+                                                    </HBox>
+                                                    <Text text="관련 기록" visible="{= ${vm>records}.length > 0 }" class="pfSpK pfSpKAccent"/>
+                                                    <VBox items="{path: 'vm>records', templateShareable: false}" renderType="Bare" class="pfPubRecs pfPubRecsSm">
+                                                        <HBox alignItems="Center" class="pfPubRec">
+                                                            <Text text="{vm>role}" class="pfRole pfRoleSm">
+                                                                <customData><core:CustomData key="role" value="{vm>badge}" writeToDom="true"/></customData>
+                                                            </Text>
+                                                            <Link text="{vm>title}" press=".onGoPath" wrapping="true" class="pfPubRecLink">
+                                                                <customData><core:CustomData key="to" value="{vm>to}"/></customData>
+                                                            </Link>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                            </VBox>
+                                            <VBox class="pfSpSub2">
+                                                <Title text="{c>/public/operations/approachTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/operations/approach}" wrapping="true" class="pfSpBody"/>
+                                                <VBox items="{vm>/pubApproach}" renderType="Bare" class="pfSpCoSteps pfSpGap">
+                                                    <HBox class="pfSpCoStep" alignItems="Start">
+                                                        <Text text="{vm>num}" class="pfSpCoNo"/>
+                                                        <Text text="{vm>text}" wrapping="true" class="pfSpCoText pfPubApText"/>
+                                                    </HBox>
+                                                </VBox>
+                                                <Text text="{c>/public/operations/approachNote}" wrapping="true" class="pfFoot"/>
+                                            </VBox>
+                                        </VBox>
+
+                                        <!-- 05. 프로젝트 성과 -->
+                                        <VBox id="secPubOutcomes" visible="{= ${vm>/pubShowAll} || ${vm>/pubTab} === 'outcomes' }" class="pfSection pfSectionLine pfSpSec">
+                                            <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                <Text text="05" class="pfCaseSecNo"/>
+                                                <Title text="프로젝트 성과" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                            </HBox>
+                                            <VBox class="pfPubBanner">
+                                                <Title text="{c>/public/outcomes/subtitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/outcomes/lead}" wrapping="true" class="pfSpBody"/>
+                                            </VBox>
+                                            <Title text="{c>/public/outcomes/contribTitle}" level="H4" wrapping="true" class="pfSpH4"/>
+                                            <VBox items="{vm>/pubContrib}" renderType="Bare" class="pfCasePoints">
+                                                <VBox class="pfCasePoint">
+                                                    <HBox alignItems="Center" justifyContent="SpaceBetween" class="pfPubCardHead">
+                                                        <Title text="{vm>title}" level="H4" wrapping="true" class="pfCasePointTitle"/>
+                                                        <Text text="{vm>role}" class="pfRole pfRoleSm">
+                                                            <customData><core:CustomData key="role" value="{= ${vm>role} === '직접' ? '직접' : '공동' }" writeToDom="true"/></customData>
+                                                        </Text>
+                                                    </HBox>
+                                                    <Text text="{vm>text}" wrapping="true" class="pfCasePointText"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <VBox class="pfSpSub2">
+                                                <Title text="{c>/public/outcomes/proposalTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <Text text="{c>/public/outcomes/proposal}" wrapping="true" class="pfSpBody"/>
+                                            </VBox>
+
+                                            <!-- 결정 P-A: 팀 운영 성과 (2024 최종보고 기준) -->
+                                            <VBox class="pfSpSub2" visible="{= ${c>/public/outcomes/teamResult}.length > 0 }">
+                                                <HBox class="pfSectionHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                    <Title text="{c>/public/outcomes/teamResultTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                    <Text text="{c>/public/outcomes/teamResultNote}" class="pfSectionNote"/>
+                                                </HBox>
+                                                <FlexBox items="{c>/public/outcomes/teamResult}" renderType="Bare" class="pfResults">
+                                                    <HBox class="pfResultRow" alignItems="Start">
+                                                        <Text text="{c>key}" class="pfResultKey"/>
+                                                        <Text text="{c>text}" wrapping="true" class="pfResultText"/>
+                                                    </HBox>
+                                                </FlexBox>
+                                                <Text text="{c>/public/outcomes/teamResultFoot}" wrapping="true" class="pfFoot"/>
+                                            </VBox>
+
+                                            <!-- 개인 표창 (이미지가 없으면 자리도 만들지 않음) -->
+                                            <VBox id="secPubAward" class="pfSpSub2">
+                                                <Title text="{c>/public/outcomes/awardTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <VBox class="pfPubAward">
+                                                    <Text text="{c>/public/outcomes/awardLabel}" class="pfSpK pfSpKAccent"/>
+                                                    <Title text="{c>/public/outcomes/awardName}" level="H4" wrapping="true" class="pfSpPmTitle"/>
+                                                    <Text text="{c>/public/outcomes/awardText}" wrapping="true" class="pfSpPmText"/>
+                                                </VBox>
+                                            </VBox>
+
+                                            <VBox class="pfSpSub2">
+                                                <Title text="{c>/public/growth/title}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <FlexBox items="{c>/public/growth/steps}" renderType="Bare" class="pfGrowth pfSpGap">
+                                                    <VBox class="pfGrowthStep">
+                                                        <Text text="{c>year}" class="pfGrowthYear"/>
+                                                        <Title text="{c>title}" level="H4" wrapping="true" class="pfGrowthTitle"/>
+                                                        <Text text="{c>text}" wrapping="true" class="pfGrowthText"/>
+                                                    </VBox>
+                                                </FlexBox>
+                                            </VBox>
+
+                                            <HBox class="pfSectionHead pfSpFlowHead" justifyContent="SpaceBetween" alignItems="End" width="100%" wrap="Wrap">
+                                                <Title text="{c>/public/outputs/title}" level="H4" class="pfSpH4 pfSpH4Flat"/>
+                                                <Text text="{c>/public/outputs/note}" class="pfSectionNote"/>
+                                            </HBox>
+                                            <!-- 0.2: 빈 이미지 자리 대신 산출물과 업무 목적 표 -->
+                                            <VBox renderType="Bare" class="pfMdTable pfSpTable">
+                                                <customData>
+                                                    <core:CustomData key="cols" value="{vm>/pubTables/outputs/cols}" writeToDom="true"/>
+                                                    <core:CustomData key="kind" value="even" writeToDom="true"/>
+                                                </customData>
+                                                <HBox items="{path: 'vm>/pubTables/outputs/head', templateShareable: false}" renderType="Bare" class="pfMdRow pfMdHead">
+                                                    <Text text="{vm>}" wrapping="true" class="pfMdTh"/>
+                                                </HBox>
+                                                <VBox items="{path: 'vm>/pubTables/outputs/rows', templateShareable: false}" renderType="Bare">
+                                                    <HBox items="{path: 'vm>cells', templateShareable: false}" renderType="Bare" class="pfMdRow">
+                                                        <Text text="{vm>v}" wrapping="true" class="pfMdTd">
+                                                            <customData><core:CustomData key="label" value="{vm>h}" writeToDom="true"/></customData>
+                                                        </Text>
+                                                    </HBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <VBox id="secPubRetro" class="pfSpSub2">
+                                                <Title text="{c>/public/outcomes/retroTitle}" level="H3" wrapping="true" class="pfSpH3"/>
+                                                <VBox items="{c>/public/outcomes/retro}" renderType="Bare" class="pfSpRetroCopy">
+                                                    <Text text="{c>}" wrapping="true" class="pfOvPara"/>
+                                                </VBox>
+                                                <!-- 0.2: 공공 웹시스템 실무에서 SAP ERP 운영, 컨설팅 직무로 이어 갈 역량 -->
+                                                <VBox renderType="Bare" class="pfMdTable pfSpTable">
+                                                    <customData>
+                                                        <core:CustomData key="cols" value="{vm>/pubTables/bridge/cols}" writeToDom="true"/>
+                                                        <core:CustomData key="kind" value="even" writeToDom="true"/>
+                                                    </customData>
+                                                    <HBox items="{path: 'vm>/pubTables/bridge/head', templateShareable: false}" renderType="Bare" class="pfMdRow pfMdHead">
+                                                        <Text text="{vm>}" wrapping="true" class="pfMdTh"/>
+                                                    </HBox>
+                                                    <VBox items="{path: 'vm>/pubTables/bridge/rows', templateShareable: false}" renderType="Bare">
+                                                        <HBox items="{path: 'vm>cells', templateShareable: false}" renderType="Bare" class="pfMdRow">
+                                                            <Text text="{vm>v}" wrapping="true" class="pfMdTd">
+                                                                <customData><core:CustomData key="label" value="{vm>h}" writeToDom="true"/></customData>
+                                                            </Text>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <VBox items="{vm>/pubRetroCards}" renderType="Bare" class="pfCasePoints pfSpGoals">
+                                                    <VBox class="pfCasePoint">
+                                                        <HBox alignItems="Baseline" class="pfPubCardHead">
+                                                            <Text text="{vm>num}" class="pfCasePointNo"/>
+                                                            <Title text="{vm>title}" level="H4" wrapping="true" class="pfCasePointTitle"/>
+                                                        </HBox>
+                                                        <Text text="{vm>text}" wrapping="true" class="pfCasePointText"/>
+                                                    </VBox>
+                                                </VBox>
+                                            </VBox>
+                                        </VBox>
+
+                                        <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
+                                        <VBox binding="{c>/site/closing/next/public}" class="pfClosingWrap">
+                                            <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
+                                        </VBox>
+
+                                    </VBox></VBox>
+                                </ScrollContainer>
+
+                                <!-- ── PF-11, PF-21 카드 상세 (vm>/card, Main.controller.js _buildCard) ── -->
+                                <ScrollContainer id="pageCard" height="100%" width="100%" vertical="true" horizontal="false">
+                                    <VBox class="pfPageInner"><VBox class="pfContainer pfCard">
+                                        <customData><core:CustomData key="axis" value="{vm>/card/axis}" writeToDom="true"/></customData>
+
+                                        <portfolio:ProgramDetail id="sapProgramDetail" visible="{vm>/card/isProgramDetail}"
+                                            card="{vm>/card}" zoom=".onProgramDetailZoom" copy=".onProgramDetailCopy"/>
+                                        <VBox visible="{= !${vm>/card/isProgramDetail} }" renderType="Bare">
+                                        <!-- 머리 -->
+                                        <!-- v0.8 결정 E: SAP 상세 경로 -->
+                                        <HBox wrap="Wrap" alignItems="Center" class="pfCrumb pfCrumbSap" visible="{= !!${vm>/card/sapCrumb} }">
+                                            <Link text="SAP 프로젝트" press=".onNav" class="pfCrumbLink">
+                                                <customData><core:CustomData key="to" value="sap"/></customData>
+                                            </Link>
+                                            <Text text="&gt;" class="pfCrumbSep"/>
+                                            <Link text="{vm>/card/sapCrumb/midText}" press=".onNav" class="pfCrumbLink">
+                                                <customData><core:CustomData key="to" value="{vm>/card/sapCrumb/midTo}"/></customData>
+                                            </Link>
+                                            <Text text="&gt;" class="pfCrumbSep"/>
+                                            <Text text="{vm>/card/title}" class="pfCrumbText"/>
+                                            <Text text="{vm>/card/hlText}" visible="{= !!${vm>/card/hlText} }" class="pfCardStar"/>
+                                        </HBox>
+                                        <HBox wrap="Wrap" alignItems="Center" class="pfCrumb" visible="{= !${vm>/card/sapCrumb} }">
+                                            <Link text="{vm>/card/axisLabel}" press=".onNav" class="pfCrumbLink">
+                                                <customData><core:CustomData key="to" value="{vm>/card/listTo}"/></customData>
+                                            </Link>
+                                            <Text text="/" class="pfCrumbSep"/>
+                                            <Text text="{vm>/card/step}" visible="{= !!${vm>/card/step} }" class="pfCrumbText"/>
+                                            <Text text="{vm>/card/hlText}" visible="{= !!${vm>/card/hlText} }" class="pfCardStar"/>
+                                        </HBox>
+                                        <Title text="{vm>/card/title}" level="H1" wrapping="true" class="pfPageTitle pfCardTitle"/>
+                                        <HBox wrap="Wrap" alignItems="Center" class="pfCardMeta">
+                                            <Text text="{vm>/card/role}" visible="{= !${vm>/card/isCase} }" class="pfRole">
+                                                <customData><core:CustomData key="role" value="{vm>/card/role}" writeToDom="true"/></customData>
+                                            </Text>
+                                            <Text text="{vm>/card/kind}" visible="{= !!${vm>/card/kind} }" class="pfBadge pfBadgeSap"/>
+                                            <Text text="대체 표준: {vm>/card/std}" visible="{= !!${vm>/card/std} }" class="pfStd"/>
+                                            <Text text="{vm>/card/tag}" visible="{= !!${vm>/card/tag} }" class="pfCardTag"/>
+                                            <Text text="{vm>/card/id}" visible="{= !!${vm>/card/id} }" class="pfCardId"/>
+                                            <Text text="{vm>/card/metaText}" visible="{= !!${vm>/card/metaText} }" class="pfCardSmall"/>
+                                        </HBox>
+                                        <Text text="{vm>/card/one}" visible="{= !${vm>/card/isCase} }" wrapping="true" class="pfCardOne"/>
+
+                                        <!-- ═══ v0.7 사례형 상세 (layout: case): 요약, 정보표와 화면, 5개 섹션 ═══ -->
+                                        <VBox visible="{vm>/card/isCase}" class="pfCase">
+                                            <Text text="{vm>/card/caseData/summary}" wrapping="true" class="pfCardOne"/>
+                                            <!-- 핵심 구현 요약 (case.points, 있을 때만) -->
+                                            <VBox items="{vm>/card/caseData/points}" visible="{= ${vm>/card/caseData/points}.length > 0 }" renderType="Bare" class="pfCasePoints">
+                                                <VBox class="pfCasePoint">
+                                                    <Text text="{vm>num}" class="pfCasePointNo"/>
+                                                    <Title text="{vm>title}" level="H3" wrapping="true" class="pfCasePointTitle"/>
+                                                    <Text text="{vm>text}" wrapping="true" class="pfCasePointText"/>
+                                                </VBox>
+                                            </VBox>
+                                            <FlexBox renderType="Bare" class="pfCardTop pfCaseTop">
+                                                <customData><core:CustomData key="shots" value="{= ${vm>/card/shots}.length > 0 ? 'y' : 'n' }" writeToDom="true"/></customData>
+                                                <VBox class="pfShots" visible="{= ${vm>/card/shots}.length > 0 }">
+                                                    <VBox class="pfShotMain">
+                                                        <Image src="{path: 'vm>/card/shot/src', formatter: '.fmtMedia'}" alt="{vm>/card/shot/caption}"
+                                                               width="100%" densityAware="false" press=".onShotZoom" class="pfShotImg"/>
+                                                        <Text text="크게 보기" class="pfShotZoom"/>
+                                                    </VBox>
+                                                    <Text text="{vm>/card/shot/caption}" wrapping="true" class="pfShotCap"/>
+                                                    <HBox items="{vm>/card/shots}" wrap="Wrap" visible="{= ${vm>/card/shots}.length > 1 }" class="pfThumbs">
+                                                        <VBox class="pfThumb">
+                                                            <customData><core:CustomData key="on" value="{= ${vm>i} === ${vm>/card/shotIndex} ? 'y' : 'n' }" writeToDom="true"/></customData>
+                                                            <Image src="{path: 'vm>src', formatter: '.fmtMedia'}" alt="{vm>caption}" width="100%"
+                                                                   densityAware="false" press=".onShotPick" class="pfThumbImg"/>
+                                                        </VBox>
+                                                    </HBox>
+                                                </VBox>
+                                                <VBox class="pfCardSide">
+                                                    <VBox items="{vm>/card/caseData/facts}" renderType="Bare" class="pfKv">
+                                                        <HBox class="pfKvRow" alignItems="Start">
+                                                            <Text text="{vm>key}" wrapping="true" class="pfKvKey"/>
+                                                            <Text text="{vm>value}" wrapping="true" class="pfKvVal"/>
+                                                        </HBox>
+                                                    </VBox>
+                                                    <!-- 시연 영상, 소스, 설계서: 확인된 주소가 있을 때만 -->
+                                                    <HBox items="{vm>/card/caseData/links}" wrap="Wrap" visible="{= ${vm>/card/caseData/links}.length > 0 }" class="pfCaseLinks">
+                                                        <Link text="{vm>label}" href="{vm>url}" target="_blank" rel="noopener noreferrer" class="pfCaseLink"/>
+                                                    </HBox>
+                                                </VBox>
+                                            </FlexBox>
+
+                                            <VBox items="{vm>/card/caseSecs}" renderType="Bare" class="pfCaseSecs">
+                                                <VBox class="pfCaseSec">
+                                                    <HBox alignItems="Baseline" class="pfCaseSecHead">
+                                                        <Text text="{vm>num}" class="pfCaseSecNo"/>
+                                                        <Title text="{vm>title}" level="H2" wrapping="true" class="pfSectionTitle pfCaseSecTitle"/>
+                                                    </HBox>
+                                                    <VBox items="{path: 'vm>blocks', templateShareable: false}" renderType="Bare" class="pfCaseBody">
+                                                        <VBox renderType="Bare" class="pfBlk">
+                                                            <customData><core:CustomData key="t" value="{vm>t}" writeToDom="true"/></customData>
+                                                            <Title text="{vm>text}" level="H3" wrapping="true" visible="{= ${vm>t} === 'h' }" class="pfCaseH3"/>
+                                                            <Text text="{vm>text}" wrapping="true" visible="{= ${vm>t} === 'p' }" class="pfSecPara"/>
+                                                            <VBox visible="{= ${vm>t} === 'quote' }" class="pfQuote">
+                                                                <Text text="{vm>text}" wrapping="true" class="pfQuoteText"/>
+                                                            </VBox>
+                                                            <VBox items="{path: 'vm>items', templateShareable: false}" visible="{= ${vm>t} === 'list' }" renderType="Bare" class="pfBullets">
+                                                                <Text text="{vm>}" wrapping="true" class="pfBullet"/>
+                                                            </VBox>
+                                                            <VBox visible="{= ${vm>t} === 'code' }" class="pfCode">
+                                                                <Text text="{vm>lang}" class="pfCodeLang"/>
+                                                                <Text text="{vm>src}" renderWhitespace="true" wrapping="false" class="pfCodeSrc"/>
+                                                            </VBox>
+                                                            <VBox visible="{= ${vm>t} === 'table' }" renderType="Bare" class="pfMdTable">
+                                                                <customData>
+                                                                    <core:CustomData key="cols" value="{vm>cols}" writeToDom="true"/>
+                                                                    <core:CustomData key="first" value="{vm>first}" writeToDom="true"/>
+                                                                </customData>
+                                                                <HBox items="{path: 'vm>head', templateShareable: false}" renderType="Bare" class="pfMdRow pfMdHead">
+                                                                    <Text text="{vm>}" wrapping="true" class="pfMdTh"/>
+                                                                </HBox>
+                                                                <VBox items="{path: 'vm>rows', templateShareable: false}" renderType="Bare">
+                                                                    <HBox items="{path: 'vm>cells', templateShareable: false}" renderType="Bare" class="pfMdRow">
+                                                                        <Text text="{vm>v}" wrapping="true" class="pfMdTd">
+                                                                            <customData><core:CustomData key="label" value="{vm>h}" writeToDom="true"/></customData>
+                                                                        </Text>
+                                                                    </HBox>
+                                                                </VBox>
+                                                            </VBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- 돌아가기: 상위 프로젝트, 홈 주요 구현 사례 -->
+                                            <FlexBox renderType="Bare" class="pfCaseBack">
+                                                <Link text="← {vm>/card/caseData/listLabel}" press=".onNav" visible="{= !!${vm>/card/caseData/listTo} }" class="pfCaseBackLink">
+                                                    <customData><core:CustomData key="to" value="{vm>/card/caseData/listTo}"/></customData>
+                                                </Link>
+                                                <Link text="← {vm>/card/projectLabel}" press=".onNav" class="pfCaseBackLink">
+                                                    <customData><core:CustomData key="to" value="{vm>/card/projectTo}"/></customData>
+                                                </Link>
+                                                <Link text="← 홈 주요 구현 사례" press=".onNav" class="pfCaseBackLink">
+                                                    <customData><core:CustomData key="to" value="highlights"/></customData>
+                                                </Link>
+                                            </FlexBox>
+                                        </VBox>
+
+                                        <!-- 화면 + 문제, 설계 내용 -->
+                                        <VBox visible="{= !${vm>/card/isCase} }" renderType="Bare">
+                                        <FlexBox renderType="Bare" class="pfCardTop">
+                                            <customData><core:CustomData key="shots" value="{= ${vm>/card/shots}.length > 0 ? 'y' : 'n' }" writeToDom="true"/></customData>
+                                            <VBox class="pfShots" visible="{= ${vm>/card/shots}.length > 0 }">
+                                                <VBox class="pfShotMain">
+                                                    <Image src="{path: 'vm>/card/shot/src', formatter: '.fmtMedia'}" alt="{vm>/card/shot/caption}"
+                                                           width="100%" densityAware="false" press=".onShotZoom" class="pfShotImg"/>
+                                                    <Text text="크게 보기" class="pfShotZoom"/>
+                                                </VBox>
+                                                <Text text="{vm>/card/shot/caption}" wrapping="true" class="pfShotCap"/>
+                                                <HBox items="{vm>/card/shots}" wrap="Wrap" visible="{= ${vm>/card/shots}.length > 1 }" class="pfThumbs">
+                                                    <VBox class="pfThumb">
+                                                        <customData><core:CustomData key="on" value="{= ${vm>i} === ${vm>/card/shotIndex} ? 'y' : 'n' }" writeToDom="true"/></customData>
+                                                        <Image src="{path: 'vm>src', formatter: '.fmtMedia'}" alt="{vm>caption}" width="100%"
+                                                               densityAware="false" press=".onShotPick" class="pfThumbImg"/>
+                                                    </VBox>
+                                                </HBox>
+                                            </VBox>
+                                            <VBox class="pfCardSide">
+                                                <VBox visible="{= !!${vm>/card/noshot} }" class="pfNoShot">
+                                                    <Text text="{vm>/card/noshot}" wrapping="true" class="pfNoShotText"/>
+                                                </VBox>
+                                                <VBox items="{vm>/card/topSecs}" renderType="Bare">
+                                                    <VBox class="pfSec">
+                                                        <Text text="{vm>title}" class="pfSecK"/>
+                                                        <VBox items="{path: 'vm>paras', templateShareable: false}" renderType="Bare">
+                                                            <Text text="{vm>}" wrapping="true" class="pfSecPara"/>
+                                                        </VBox>
+                                                        <VBox items="{path: 'vm>items', templateShareable: false}" renderType="Bare" class="pfSteps">
+                                                            <HBox class="pfStep" alignItems="Start">
+                                                                <Text text="{vm>n}" class="pfStepNo"/>
+                                                                <Text text="{vm>text}" wrapping="true" class="pfStepText"/>
+                                                            </HBox>
+                                                        </VBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <VBox visible="{= ${vm>/card/movements}.length > 0 }" class="pfSec">
+                                                    <Text text="자재 이동 유형별 전표" class="pfSecK"/>
+                                                    <VBox items="{vm>/card/movements}" renderType="Bare" class="pfMoves">
+                                                        <HBox class="pfMove" alignItems="Start">
+                                                            <Text text="{vm>type}" class="pfMoveType"/>
+                                                            <Text text="{vm>name}" class="pfMoveName"/>
+                                                            <Text text="{vm>entry}" wrapping="true" class="pfMoveEntry"/>
+                                                        </HBox>
+                                                    </VBox>
+                                                </VBox>
+                                                <VBox visible="{= ${vm>/card/principles}.length > 0 }" class="pfSec">
+                                                    <Text text="설계 원칙" class="pfSecK"/>
+                                                    <HBox items="{vm>/card/principles}" wrap="Wrap" class="pfCatPrs">
+                                                        <Text text="{vm>}" class="pfPrTag pfPrTagLg"/>
+                                                    </HBox>
+                                                </VBox>
+                                                <Text text="{vm>/card/note}" visible="{= !!${vm>/card/note} }" wrapping="true" class="pfFoot"/>
+                                            </VBox>
+                                        </FlexBox>
+
+                                        <!-- 접는 영역: 핵심 로직, 결과, 내가 한 일과 팀이 한 일, 연결, 코드 -->
+                                        <VBox items="{vm>/card/panels}" renderType="Bare" class="pfPanels">
+                                            <Panel expandable="true" expanded="{vm>expanded}" headerText="{vm>title}"
+                                                   backgroundDesign="Transparent" class="pfPanel">
+                                                <VBox class="pfPanelBody">
+                                                    <VBox items="{path: 'vm>paras', templateShareable: false}" renderType="Bare">
+                                                        <Text text="{vm>}" wrapping="true" class="pfSecPara"/>
+                                                    </VBox>
+                                                    <VBox items="{path: 'vm>items', templateShareable: false}" renderType="Bare" class="pfBullets">
+                                                        <Text text="{vm>text}" wrapping="true" class="pfBullet"/>
+                                                    </VBox>
+                                                    <VBox visible="{= !!${vm>code} }" class="pfCode">
+                                                        <Text text="{vm>code/lang}" class="pfCodeLang"/>
+                                                        <Text text="{vm>code/src}" renderWhitespace="true" wrapping="false" class="pfCodeSrc"/>
+                                                    </VBox>
+                                                </VBox>
+                                            </Panel>
+                                        </VBox>
+
+                                        <!-- 근거 문서: v0.7 18-2장, 작업 문서 이름은 공개 화면에 보이지 않게 숨김 (md 의 sources 기록은 유지) -->
+                                        <VBox visible="false" class="pfSources">
+                                            <Text text="근거 문서" class="pfSecK"/>
+                                            <HBox items="{vm>/card/sources}" wrap="Wrap" class="pfSourceList">
+                                                <Text text="{vm>}" class="pfSource"/>
+                                            </HBox>
+                                        </VBox>
+
+                                        </VBox>
+                                        <!-- 이전, 다음 -->
+                                        <FlexBox renderType="Bare" class="pfPager">
+                                            <Button press=".onNav" visible="{= !!${vm>/card/prev} }" class="pfPagerBtn pfPagerPrev"
+                                                    text="← {vm>/card/prev/title}">
+                                                <customData><core:CustomData key="to" value="{vm>/card/prev/to}"/></customData>
+                                            </Button>
+                                            <Button press=".onNav" class="pfPagerBtn pfPagerList" text="목록으로">
+                                                <customData><core:CustomData key="to" value="{vm>/card/listTo}"/></customData>
+                                            </Button>
+                                            <Button press=".onNav" visible="{= !!${vm>/card/next} }" class="pfPagerBtn pfPagerNext"
+                                                    text="{vm>/card/next/title} →">
+                                                <customData><core:CustomData key="to" value="{vm>/card/next/to}"/></customData>
+                                            </Button>
+                                        </FlexBox>
+
+                                        </VBox>
+                                    </VBox></VBox>
+                                </ScrollContainer>
+
+                            </NavContainer>
+                        </FlexBox>
+                    </content>
+                </Page>
+            </pages>
+        </App>
+    </Shell>
+</mvc:View>

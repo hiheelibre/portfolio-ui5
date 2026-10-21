@@ -1,0 +1,21 @@
+<!--
+  Closing.fragment.xml — 2026-10-21 UX 개선 4: 페이지 맨 아래 마무리 블록
+  - 감싸는 VBox 의 binding 이 c>/site/closing/next/{home|sap|public} 을 가리킴 (다음 이동 버튼의 label, to)
+  - 이메일 보내기(mailto), 주소 복사, Credly 배지 확인. 문구는 content/site.md 의 closing
+-->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <FlexBox renderType="Bare" class="pfClosing">
+        <VBox class="pfClosingText">
+            <Title text="{c>/site/closing/title}" level="H2" wrapping="true" class="pfClosingTitle"/>
+            <Text text="{c>/site/closing/text}" wrapping="true" class="pfClosingSub"/>
+        </VBox>
+        <HBox wrap="Wrap" alignItems="Center" class="pfClosingActions">
+            <Button text="{c>label} →" press=".onGoPath" visible="{= !!${c>to} }" class="pfBtn pfBtnBlue">
+                <customData><core:CustomData key="to" value="{c>to}"/></customData>
+            </Button>
+            <Button text="{c>/site/closing/mailLabel}" icon="sap-icon://email" press=".onMailTo" class="pfBtn pfBtnOutline"/>
+            <Button text="{c>/site/closing/copyLabel}" press=".onCopyEmail" class="pfBtn pfBtnText"/>
+            <Button text="{c>/site/closing/credlyLabel} ↗" press=".onOpenCredly" class="pfBtn pfBtnText"/>
+        </HBox>
+    </FlexBox>
+</core:FragmentDefinition>

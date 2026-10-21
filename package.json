@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "Notion 빌드 타임 동기화 기반 Enterprise Developer Portfolio",
-  "keywords": ["ui5", "openui5", "sapui5"],
+  "keywords": [
+    "ui5",
+    "openui5",
+    "sapui5"
+  ],
   "main": "webapp/index.html",
   "dependencies": {
     "@notionhq/client": "^5.22.0",
@@ -12,6 +16,7 @@
   "devDependencies": {
     "@sap/ux-ui5-tooling": "1",
     "@ui5/cli": "^4.0.33",
+    "js-yaml": "^4.1.0",
     "rimraf": "6.0.1",
     "serve": "^14.2.6"
   },
@@ -27,7 +32,10 @@
     "notion:sync": "node scripts/sync-notion-posts.js",
     "content:sync": "npm run notion:modules && npm run notion:sync",
     "content:validate": "node scripts/validate-portfolio-content.js",
-    "portfolio:build": "npm run notion:modules && npm run notion:sync && npm run content:validate && npm run build",
+    "content:build": "node scripts/build-content.js",
+    "content:check": "node scripts/validate-content.js",
+    "portfolio:build": "npm run content:check && npm run content:build && npm run content:validate && npm run build",
+    "portfolio:build:notion": "npm run notion:modules && npm run notion:sync && npm run content:validate && npm run build",
     "preview:dist": "serve dist",
     "notion:deploy": "node scripts/trigger-netlify-build.js"
   },

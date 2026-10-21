@@ -13,7 +13,7 @@ git status
 
 echo.
 echo [2/5] 로컬 빌드 테스트 실행
-echo Notion 모듈 동기화 + 게시글 동기화 + 컨텐츠 검증 + UI5 빌드를 실행합니다.
+echo 컨텐츠 검증 + UI5 빌드를 실행합니다. (Notion 동기화는 끊어 둔 상태)
 echo.
 
 call npm run portfolio:build

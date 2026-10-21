@@ -1,0 +1,31 @@
+<!--
+  CatCard.fragment.xml — 카탈로그 카드 한 장 (SAP 프로그램, 공통 모듈, 공공 카드가 함께 씀)
+  바인딩: vm 모델의 카드 항목 (Main.controller.js _toCatItem)
+-->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <VBox class="pfCatInner">
+        <VBox class="pfCatThumb">
+            <Image src="{path: 'vm>thumbSrc', formatter: '.fmtMedia'}" visible="{= !!${vm>thumbSrc} }"
+                   width="100%" densityAware="false" alt="{vm>title}" class="pfCatImg"/>
+            <VBox visible="{= !${vm>thumbSrc} }" class="pfCatEmpty" alignItems="Center" justifyContent="Center">
+                <Text text="{vm>kind}" class="pfCatEmptyKind"/>
+                <Text text="{vm>emptyText}" class="pfCatEmptyText"/>
+            </VBox>
+            <Text text="{vm>hlText}" visible="{= !!${vm>hlText} }" class="pfCatStar"/>
+        </VBox>
+        <VBox class="pfCatBody">
+            <HBox alignItems="Center" class="pfCatMeta">
+                <Text text="{vm>role}" class="pfRole">
+                    <customData><core:CustomData key="role" value="{vm>role}" writeToDom="true"/></customData>
+                </Text>
+                <Text text="{vm>tag}" visible="{= !!${vm>tag} }" class="pfCatTag"/>
+                <Text text="{vm>metaText}" class="pfCatId"/>
+            </HBox>
+            <Title text="{vm>title}" level="H3" wrapping="true" class="pfCatTitle"/>
+            <Text text="{vm>one}" wrapping="true" maxLines="2" class="pfCatOne"/>
+            <HBox items="{path: 'vm>principles', templateShareable: false}" wrap="Wrap" class="pfCatPrs">
+                <Text text="{vm>}" class="pfPrTag"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</core:FragmentDefinition>

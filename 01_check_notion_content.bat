@@ -1,6 +1,9 @@
 @echo off
 chcp 65001 > nul
 
+echo [안내] Notion 연동은 현재 끊어 둔 상태입니다. 다시 쓸 때만 실행하세요.
+echo        실행하면 webapp/model/*.json 이 Notion 내용으로 덮어써집니다.
+pause
 echo ========================================
 echo  HIHEE Portfolio Content Check
 echo ========================================

@@ -1,0 +1,54 @@
+<!--
+  PubRecord.fragment.xml — 0.2: 공공 "업무 영역별 설계와 개발 기록"을 페이지 이동 없이 여는 레이어 팝업
+  바인딩: vm>/pop (Main.controller.js _buildPubPop, 상세 페이지와 같은 public.json cards 데이터를 그대로 씀)
+  열기와 닫기: #public/{카드key} 주소 (Main.controller.js _applyHash, _openPubPop, onPubPopClose)
+-->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="pubPop" showHeader="false" contentWidth="800px" verticalScrolling="true" horizontalScrolling="false"
+            draggable="false" resizable="false" ariaLabelledBy="pubPopTitle" afterClose=".onPubPopAfterClose" class="pfPop">
+        <content>
+            <VBox class="pfPopHead">
+                <HBox justifyContent="SpaceBetween" alignItems="Start" class="pfPopHeadRow">
+                    <HBox wrap="Wrap" alignItems="Center" class="pfPopMeta">
+                        <Text text="{vm>/pop/code}" class="pfPubCatCode"/>
+                        <Text text="{vm>/pop/area}" class="pfPopMetaText"/>
+                        <Text text="{vm>/pop/role}" class="pfRole pfRoleSm">
+                            <customData><core:CustomData key="role" value="{vm>/pop/roleKey}" writeToDom="true"/></customData>
+                        </Text>
+                        <Text text="{vm>/pop/year}" class="pfPopMetaText pfPopYear"/>
+                    </HBox>
+                    <Button icon="sap-icon://decline" type="Transparent" tooltip="닫기" press=".onPubPopClose" class="pfPopX"/>
+                </HBox>
+                <Title id="pubPopTitle" text="{vm>/pop/title}" level="H2" wrapping="true" class="pfPopTitle"/>
+            </VBox>
+            <VBox items="{vm>/pop/secs}" renderType="Bare" class="pfPopBody">
+                <VBox renderType="Bare" class="pfPopSec">
+                    <Title text="{vm>title}" level="H3" wrapping="true" class="pfPopSecK"/>
+                    <VBox items="{path: 'vm>paras', templateShareable: false}" visible="{= ${vm>paras}.length > 0 }" renderType="Bare" class="pfPopParas">
+                        <Text text="{vm>}" wrapping="true" class="pfSecPara"/>
+                    </VBox>
+                    <VBox items="{path: 'vm>steps', templateShareable: false}" visible="{= ${vm>steps}.length > 0 }" renderType="Bare" class="pfSteps">
+                        <HBox class="pfStep" alignItems="Start">
+                            <Text text="{vm>n}" class="pfStepNo"/>
+                            <Text text="{vm>text}" wrapping="true" class="pfStepText"/>
+                        </HBox>
+                    </VBox>
+                    <VBox items="{path: 'vm>bullets', templateShareable: false}" visible="{= ${vm>bullets}.length > 0 }" renderType="Bare" class="pfBullets">
+                        <Text text="{vm>}" wrapping="true" class="pfBullet"/>
+                    </VBox>
+                    <HBox items="{path: 'vm>tags', templateShareable: false}" visible="{= ${vm>tags}.length > 0 }" wrap="Wrap" class="pfCatPrs">
+                        <Text text="{vm>}" class="pfPrTag pfPrTagLg"/>
+                    </HBox>
+                    <VBox visible="{= !!${vm>code} }" class="pfCode">
+                        <Text text="{vm>code/lang}" class="pfCodeLang"/>
+                        <Text text="{vm>code/src}" renderWhitespace="true" wrapping="false" class="pfCodeSrc"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+            <Text text="{vm>/pop/note}" visible="{= !!${vm>/pop/note} }" wrapping="true" class="pfFoot pfPopNote"/>
+        </content>
+        <endButton>
+            <Button text="닫기" press=".onPubPopClose" class="pfPopClose"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
