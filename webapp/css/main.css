@@ -3303,3 +3303,24 @@ a.pfCoNode:focus-visible { outline: 2px solid var(--pf-accent); outline-offset: 
     .pfMain .pfCaseSecHead .pfCaseSecNo.sapMText,
     .pfProgramSectionHead > span { font-size: 17px !important; }
 }
+
+
+/* ═══ 2026-10-21 사용자 요청: 탭 아래 파란 선을 글자 폭에 정확히 맞춤 (사이트 전체 탭) ═══
+   탭 칸 좌우 여백 때문에 선이 글자보다 짧거나 어긋났음 → 칸 여백을 0으로, 탭 사이는 바깥 간격으로 띄우고 선은 칸 전체 폭 */
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBFilter {
+    position: relative; box-sizing: border-box; padding: 0 !important; margin: 0 14px !important; border-bottom: 0 !important;
+}
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBHead > .sapMITBFilter:first-child,
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBHead > .sapMITBItem:first-child { margin-left: 0 !important; }
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBFilter::after {
+    content: "" !important; position: absolute; left: 0 !important; right: 0; width: 100% !important; bottom: 0;
+    height: 3px; transform: none !important; border-radius: 2px 2px 0 0; background: transparent;
+}
+.pfMain :is(.pfUnifiedTabs, .pfSapHeroTabs) .sapMITBFilter.sapMITBSelected::after { background: var(--pf-accent) !important; }
+.pfMain .pfPubTabs .sapMITBFilter.sapMITBSelected::after { background: var(--pf-heading-line) !important; }
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBFilterWrapper { padding: 0 !important; }
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBText { width: auto !important; padding: 0 !important; }
+.pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBContentArrow { display: none !important; }
+@media (max-width: 767px) {
+    .pfMain :is(.pfUnifiedTabs, .pfPubTabs, .pfSapHeroTabs) .sapMITBFilter { margin: 0 10px !important; }
+}
