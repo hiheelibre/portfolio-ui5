@@ -625,7 +625,7 @@
                                                     <IconTabFilter key="outcomes" text="성과 및 표창"/>
                                                 </items>
                                             </IconTabBar>
-                                            <CheckBox text="전체 연속 보기" selected="{vm>/pubShowAll}" select=".onPubShowAll" class="pfPubViewAll"/>
+                                            <!-- 2026-10-21 사용자 요청: "전체 연속 보기" 기능 삭제 (탭으로 한 섹션씩만 보기) -->
                                         </HBox>
 
                                         <!-- 01. 프로젝트 개요 -->

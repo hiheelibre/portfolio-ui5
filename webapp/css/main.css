@@ -3269,3 +3269,37 @@ a.pfCoNode:focus-visible { outline: 2px solid var(--pf-accent); outline-offset: 
     .pfMobileChip.sapMBtn[data-on="y"] .sapMBtnInner { background: var(--pf-accent) !important; border-color: var(--pf-accent) !important; }
     .pfMobileChip.sapMBtn[data-on="y"] bdi { color: #ffffff; }
 }
+
+
+/* ═══ 2026-10-21 사용자 요청: 중제목 정리 (사이트 전체) ═══
+   1) 번호(01)와 제목 글자의 세로 중심을 맞춤: 기준선 정렬 대신 가운데 정렬, 번호 줄높이 1
+   2) 중제목 뒤 연한 하늘색 바탕 제거 (왼쪽 세로선은 유지) */
+@media screen {
+    .pfMain .pfSectionHead:has(.pfSectionTitle),
+    .pfMain .pfCaseSecHead,
+    .pfMain [id$="--pageSap"] .pfCaseSecHead,
+    .pfProgramSectionHead {
+        align-items: center !important;
+        background: transparent !important;
+        padding-left: 20px;
+    }
+    .pfMain .pfCaseSecHead > .sapMFlexItem,
+    .pfMain .pfSectionHead:has(.pfSectionTitle) > .sapMFlexItem { display: flex; align-items: center; }
+    .pfMain .pfCaseSecHead .pfSectionTitle.sapMTitle,
+    .pfMain .pfSectionHead .pfSectionTitle.sapMTitle,
+    .pfProgramSectionHead h2 { line-height: 1.35 !important; }
+    .pfMain .pfCaseSecHead .pfCaseSecNo.sapMText,
+    .pfMain [id$="--pageSap"] .pfCaseSecHead .pfCaseSecNo.sapMText,
+    .pfProgramSectionHead > span {
+        display: block; line-height: 1 !important; font-size: 20px !important; font-weight: 700 !important;
+        color: var(--pf-heading-line) !important; transform: translateY(-1px);
+    }
+    .sapMDialog.pfPop .pfPopTitle.sapMTitle { background: transparent !important; }
+}
+@media screen and (max-width: 767px) {
+    .pfMain .pfSectionHead:has(.pfSectionTitle),
+    .pfMain .pfCaseSecHead,
+    .pfProgramSectionHead { padding-left: 14px; }
+    .pfMain .pfCaseSecHead .pfCaseSecNo.sapMText,
+    .pfProgramSectionHead > span { font-size: 17px !important; }
+}
