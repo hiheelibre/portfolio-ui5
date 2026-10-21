@@ -331,10 +331,6 @@
                                                 </HBox>
                                             </VBox>
 
-                                            <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
-                                            <VBox binding="{c>/site/closing/next/home}" class="pfClosingWrap">
-                                                <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
-                                            </VBox>
 
                                         </VBox>
                                     </VBox>
@@ -594,10 +590,6 @@
                                                 outputs="{c>/sap/outputs}" retro="{c>/sap/retro}"/>
                                         </VBox>
 
-                                        <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
-                                        <VBox binding="{c>/site/closing/next/sap}" class="pfClosingWrap">
-                                            <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
-                                        </VBox>
 
                                     </VBox></VBox>
                                 </ScrollContainer>
@@ -1120,10 +1112,6 @@
                                             </VBox>
                                         </VBox>
 
-                                        <!-- 2026-10-21 UX 개선 4: 마무리 블록 (다음 프로젝트, 연락) -->
-                                        <VBox binding="{c>/site/closing/next/public}" class="pfClosingWrap">
-                                            <core:Fragment fragmentName="portfolio.dashboard.view.Closing" type="XML"/>
-                                        </VBox>
 
                                     </VBox></VBox>
                                 </ScrollContainer>

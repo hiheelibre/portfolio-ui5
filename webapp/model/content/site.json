@@ -86,25 +86,9 @@
     "credly": "https://www.credly.com/users/jihee-han.308a1d52/badges/credly"
   },
   "closing": {
-    "title": "더 궁금한 점이 있으시면 편하게 연락 주세요",
-    "text": "프로젝트에서 맡은 역할, 개발한 프로그램, 공공 시스템 운영 경험에 대해 자세히 말씀드리겠습니다.",
     "mailLabel": "이메일 보내기",
     "mailSubject": "포트폴리오를 보고 연락드립니다",
     "copyLabel": "이메일 주소 복사",
-    "credlyLabel": "Credly 배지 확인",
-    "next": {
-      "home": {
-        "label": "SAP S/4HANA 통합 ERP 구축 보기",
-        "to": "sap"
-      },
-      "sap": {
-        "label": "다음 프로젝트, 공공 웹시스템 운영 및 개선",
-        "to": "public"
-      },
-      "public": {
-        "label": "SAP S/4HANA 통합 ERP 구축 다시 보기",
-        "to": "sap"
-      }
-    }
+    "credlyLabel": "Credly 배지 확인"
   }
 }
